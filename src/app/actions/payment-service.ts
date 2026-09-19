@@ -29,7 +29,7 @@ export async function registerPayment({
   if (existing) throw new Error("Esta referencia de pago ya ha sido registrada.");
 
   // 2. Registrar pago e incrementar caja del usuario
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx: any) => {
     const payment = await tx.payment.create({
       data: {
         tenantId,
