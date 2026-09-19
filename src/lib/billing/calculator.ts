@@ -2,7 +2,7 @@
 
 export interface RateBlock {
   min: number;
-  max: number | Infinity;
+  max: number | typeof Infinity;
   pricePerUnit: number;
 }
 
@@ -26,7 +26,7 @@ export function calculateWaterBill(
 
   for (const block of blocks) {
     if (remaining <= 0) break;
-    const m3InBlock = Math.min(remaining, (block.max === Infinity ? remaining : block.max) - block.min + 1);
+    const m3InBlock = Math.min(remaining, (block.max === Infinity ? remaining : (block.max as number)) - block.min + 1);
     const cost = m3InBlock * block.pricePerUnit;
     variableCharge += cost;
     breakdown.push({ block: `${block.min}-${block.max}`, m3: m3InBlock, cost });
