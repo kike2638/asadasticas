@@ -27,7 +27,7 @@ export async function previewInvoice(meterId: string, currentReading: number) {
   const bill = calculateWaterBill(
     consumption,
     tariff.baseCharge.toNumber(),
-    tariff.blocks.map(b => ({
+    tariff.blocks.map((b: any) => ({
       min: b.min,
       max: b.max,
       pricePerUnit: b.pricePerUnit.toNumber()
