@@ -40,7 +40,7 @@ export async function registerPayment({
         referenceNumber: reference,
         registeredById: userId
       }
-    });
+    } as any);
 
     if (invoiceId) {
       await tx.invoice.update({
