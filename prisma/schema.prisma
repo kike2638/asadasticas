@@ -89,6 +89,7 @@ model Invoice {
   fechaVencimiento DateTime
   detalleCalculo  Json
   respuestaHacienda Json?
+  paymentDetails  Json?
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
   subscriber      Subscriber @relation(fields: [subscriberId], references: [id])
 }
