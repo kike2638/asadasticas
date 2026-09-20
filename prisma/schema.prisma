@@ -80,6 +80,7 @@ model Invoice {
   consecutivo     String
   clave           String   @unique
   estadoHacienda  String
+  status          String   @default("PENDING") // Añadido para resolver error de compilación
   subtotal        Decimal
   impuestoIVA     Decimal
   total           Decimal
