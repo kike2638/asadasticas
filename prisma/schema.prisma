@@ -21,6 +21,7 @@ model Tenant {
   meters       Meter[]
   readings     Reading[]
   invoices     Invoice[]
+  payments     Payment[]
   config       TenantConfig?
 }
 
@@ -50,6 +51,7 @@ model Subscriber {
   category  String   @default("DOMICILIAR")
   meters    Meter[]
   invoices  Invoice[]
+  payments  Payment[]
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
 }
 
@@ -80,7 +82,7 @@ model Invoice {
   consecutivo     String
   clave           String   @unique
   estadoHacienda  String
-  status          String   @default("PENDING") // Añadido para resolver error de compilación
+  status          String   @default("PENDING")
   subtotal        Decimal
   impuestoIVA     Decimal
   total           Decimal
@@ -92,4 +94,24 @@ model Invoice {
   paymentDetails  Json?
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
   subscriber      Subscriber @relation(fields: [subscriberId], references: [id])
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  tenantId        String
+  invoiceId       String?
+  subscriberId    String
+  amount          Decimal
+  paymentDate     DateTime @default(now())
+  paymentMethod   String
+  referenceNumber String?
+  bankAccount     String?
+  status          String   @default("PROCESSED")
+  registeredById  String
+
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  subscriber      Subscriber @relation(fields: [subscriberId], references: [id])
+
+  @@index([referenceNumber])
+  @@index([paymentDate])
 }
