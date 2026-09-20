@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model Tenant {
+  id           String   @id @default(uuid())
+  slug         String   @unique
+  name         String
+  plan         String
+  status       String
+  createdAt    DateTime @default(now())
+
+  users        User[]
+  subscribers  Subscriber[]
+  meters       Meter[]
+  config       TenantConfig?
+}
+
+model TenantConfig {
+  tenantId          String   @id @unique
+  haciendaUser      String
+  haciendaPassword  String
+  llaveCryptBase64  String
+  llavePin          String
+  consecutive       Int      @default(1)
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  tenantId  String
+  email     String   @unique
+  role      String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model Subscriber {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  nis       String
+  meters    Meter[]
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model Meter {
+  id           String     @id @default(uuid())
+  tenantId     String
+  subscriberId String
+  number       String
+  readings     Reading[]
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id])
+}
+
+model Reading {
+  id        String   @id @default(uuid())
+  tenantId  String
+  meterId   String
+  value     Decimal
+  date      DateTime
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  meter     Meter    @relation(fields: [meterId], references: [id])
+}
+
+model Invoice {
+  id              String   @id @default(uuid())
+  tenantId        String
+  subscriberId    String
+  consecutivo     String
+  clave           String   @unique
+  estadoHacienda  String
+  subtotal        Decimal
+  impuestoIVA     Decimal
+  total           Decimal
+  periodoFacturacion String
+  fechaEmision    DateTime @default(now())
+  fechaVencimiento DateTime
+  detalleCalculo  Json
+  respuestaHacienda Json?
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  subscriber      Subscriber @relation(fields: [subscriberId], references: [id])
+}
