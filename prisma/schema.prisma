@@ -22,7 +22,31 @@ model Tenant {
   readings     Reading[]
   invoices     Invoice[]
   payments     Payment[]
+  tariffs      Tariff[]
   config       TenantConfig?
+}
+
+model Tariff {
+  id              String   @id @default(uuid())
+  tenantId        String
+  category        String
+  name            String
+  baseCharge      Decimal
+  baseCubicMeters Int      @default(15)
+  isActive        Boolean  @default(true)
+  validFrom       DateTime @default(now())
+
+  blocks          TariffBlock[]
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model TariffBlock {
+  id              String   @id @default(uuid())
+  tariffId        String
+  min             Int
+  max             Int
+  pricePerUnit    Decimal
+  tariff          Tariff   @relation(fields: [tariffId], references: [id])
 }
 
 model TenantConfig {
