@@ -47,6 +47,7 @@ model Subscriber {
   tenantId  String
   name      String
   nis       String
+  category  String   @default("DOMICILIAR")
   meters    Meter[]
   invoices  Invoice[]
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
