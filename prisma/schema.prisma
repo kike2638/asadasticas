@@ -19,6 +19,8 @@ model Tenant {
   users        User[]
   subscribers  Subscriber[]
   meters       Meter[]
+  readings     Reading[]
+  invoices     Invoice[]
   config       TenantConfig?
 }
 
@@ -46,6 +48,7 @@ model Subscriber {
   name      String
   nis       String
   meters    Meter[]
+  invoices  Invoice[]
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
 }
 
