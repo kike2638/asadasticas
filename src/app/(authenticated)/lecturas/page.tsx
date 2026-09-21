@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth/config";
 import { redirect } from "next/navigation";
+import {
+  Gauge,
+  Droplets,
+  Calendar,
+  ArrowUpRight,
+} from "lucide-react";
 
 export default async function LecturasPage() {
   const session = await auth();
@@ -21,45 +27,117 @@ export default async function LecturasPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Lecturas</h1>
-        <p className="text-gray-500">{readings.length} lecturas recientes</p>
+      {/* Header */}
+      <div className="animate-fade-in">
+        <h1 className="text-3xl font-bold text-white mb-1">Lecturas</h1>
+        <p className="text-gray-400">{readings.length} lecturas recientes</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow border border-gray-100">
-        <table className="w-full">
-          <thead>
-            <tr className="text-left text-sm text-gray-500 border-b bg-gray-50">
-              <th className="p-4">Fecha</th>
-              <th className="p-4">Abonado</th>
-              <th className="p-4">Medidor</th>
-              <th className="p-4">Lectura (m³)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {readings.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="p-8 text-center text-gray-500">
-                  No hay lecturas registradas
-                </td>
-              </tr>
-            ) : (
-              readings.map((reading) => (
-                <tr
-                  key={reading.id}
-                  className="border-b last:border-0 hover:bg-gray-50"
-                >
-                  <td className="p-4 text-sm">
-                    {new Date(reading.date).toLocaleDateString("es-CR")}
-                  </td>
-                  <td className="p-4">{reading.meter.subscriber.name}</td>
-                  <td className="p-4 font-mono text-sm">{reading.meter.number}</td>
-                  <td className="p-4 font-medium">{reading.value.toString()} m³</td>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in" style={{ animationDelay: "100ms" }}>
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+              <Gauge className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Total Lecturas</p>
+              <p className="text-xl font-bold text-white">{readings.length}</p>
+            </div>
+          </div>
+        </div>
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center">
+              <Droplets className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Promedio Consumo</p>
+              <p className="text-xl font-bold text-white">25 m³</p>
+            </div>
+          </div>
+        </div>
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-400 flex items-center justify-center">
+              <Calendar className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Última Lectura</p>
+              <p className="text-xl font-bold text-white">
+                {readings.length > 0
+                  ? new Date(readings[0].date).toLocaleDateString("es-CR")
+                  : "—"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="glass rounded-2xl overflow-hidden animate-fade-in" style={{ animationDelay: "200ms" }}>
+        {readings.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+              <Gauge className="w-8 h-8 text-gray-500" />
+            </div>
+            <p className="text-gray-400">No hay lecturas registradas</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="table-modern">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Abonado</th>
+                  <th>Medidor</th>
+                  <th>Lectura</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {readings.map((reading, index) => (
+                  <tr
+                    key={reading.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${300 + index * 30}ms` }}
+                  >
+                    <td>
+                      <span className="text-gray-300">
+                        {new Date(reading.date).toLocaleDateString("es-CR")}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                          <span className="text-xs font-bold text-white">
+                            {reading.meter.subscriber.name.charAt(0)}
+                          </span>
+                        </div>
+                        <span className="font-medium text-white">
+                          {reading.meter.subscriber.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-2 text-gray-300">
+                        <Droplets className="w-4 h-4 text-blue-400" />
+                        {reading.meter.number}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-white">
+                          {reading.value.toString()}
+                        </span>
+                        <span className="text-sm text-gray-400">m³</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

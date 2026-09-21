@@ -2,6 +2,13 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth/config";
 import { redirect } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
+import {
+  CreditCard,
+  TrendingUp,
+  TrendingDown,
+  Calendar,
+  Filter,
+} from "lucide-react";
 
 export default async function PaymentsPage() {
   const session = await auth();
@@ -16,69 +23,145 @@ export default async function PaymentsPage() {
     take: 50,
   });
 
+  const totalPayments = payments.reduce(
+    (sum, p) => sum + p.amount.toNumber(),
+    0
+  );
+
+  const methodColors: Record<string, string> = {
+    SINPE_MOVIL: "badge-cyan",
+    TRANSFERENCIA: "badge-blue",
+    EFECTIVO: "badge-green",
+    TARJETA: "badge-purple",
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Pagos</h1>
-        <p className="text-gray-500">{payments.length} pagos registrados</p>
+      {/* Header */}
+      <div className="animate-fade-in">
+        <h1 className="text-3xl font-bold text-white mb-1">Pagos</h1>
+        <p className="text-gray-400">{payments.length} pagos registrados</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow border border-gray-100">
-        <table className="w-full">
-          <thead>
-            <tr className="text-left text-sm text-gray-500 border-b bg-gray-50">
-              <th className="p-4">Fecha</th>
-              <th className="p-4">Abonado</th>
-              <th className="p-4">Monto</th>
-              <th className="p-4">Método</th>
-              <th className="p-4">Referencia</th>
-              <th className="p-4">Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="p-8 text-center text-gray-500">
-                  No hay pagos registrados
-                </td>
-              </tr>
-            ) : (
-              payments.map((payment) => (
-                <tr
-                  key={payment.id}
-                  className="border-b last:border-0 hover:bg-gray-50"
-                >
-                  <td className="p-4 text-sm">
-                    {new Date(payment.paymentDate).toLocaleDateString("es-CR")}
-                  </td>
-                  <td className="p-4">{payment.subscriber.name}</td>
-                  <td className="p-4 font-medium">
-                    {formatCurrency(payment.amount.toNumber())}
-                  </td>
-                  <td className="p-4">
-                    <span className="px-2 py-1 bg-gray-100 rounded text-sm">
-                      {payment.paymentMethod}
-                    </span>
-                  </td>
-                  <td className="p-4 text-sm text-gray-500 font-mono">
-                    {payment.referenceNumber || "—"}
-                  </td>
-                  <td className="p-4">
-                    <span
-                      className={`px-2 py-1 rounded text-sm ${
-                        payment.status === "PROCESSED"
-                          ? "bg-green-50 text-green-700"
-                          : "bg-red-50 text-red-700"
-                      }`}
-                    >
-                      {payment.status}
-                    </span>
-                  </td>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in" style={{ animationDelay: "100ms" }}>
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Total Recibido</p>
+              <p className="text-xl font-bold text-white">
+                ₡{totalPayments.toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+              <CreditCard className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Transacciones</p>
+              <p className="text-xl font-bold text-white">{payments.length}</p>
+            </div>
+          </div>
+        </div>
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-400 flex items-center justify-center">
+              <Calendar className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Último Pago</p>
+              <p className="text-xl font-bold text-white">
+                {payments.length > 0
+                  ? new Date(payments[0].paymentDate).toLocaleDateString("es-CR")
+                  : "—"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="glass rounded-2xl overflow-hidden animate-fade-in" style={{ animationDelay: "200ms" }}>
+        {payments.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+              <CreditCard className="w-8 h-8 text-gray-500" />
+            </div>
+            <p className="text-gray-400">No hay pagos registrados</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="table-modern">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Abonado</th>
+                  <th>Monto</th>
+                  <th>Método</th>
+                  <th>Referencia</th>
+                  <th>Estado</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {payments.map((payment, index) => (
+                  <tr
+                    key={payment.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${300 + index * 30}ms` }}
+                  >
+                    <td>
+                      <span className="text-gray-300">
+                        {new Date(payment.paymentDate).toLocaleDateString("es-CR")}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                          <span className="text-xs font-bold text-white">
+                            {payment.subscriber.name.charAt(0)}
+                          </span>
+                        </div>
+                        <span className="font-medium text-white">
+                          {payment.subscriber.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="font-semibold text-white">
+                        {formatCurrency(payment.amount.toNumber())}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge ${methodColors[payment.paymentMethod] || "badge-blue"}`}>
+                        {payment.paymentMethod}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="font-mono text-sm text-gray-400">
+                        {payment.referenceNumber || "—"}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`badge ${
+                          payment.status === "PROCESSED" ? "badge-green" : "badge-red"
+                        }`}
+                      >
+                        {payment.status === "PROCESSED" ? "Procesado" : "Revertido"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
