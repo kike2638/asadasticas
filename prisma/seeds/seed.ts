@@ -78,23 +78,26 @@ async function main() {
   });
 
   // 6. Crear abonados de prueba
-  const subscribers = [
-    { nis: '001', name: 'Juan Carlos Pérez', category: 'DOMICILIAR' },
-    { nis: '002', name: 'María López Solís', category: 'DOMICILIAR' },
-    { nis: '003', name: 'Tienda Don Pedro', category: 'COMERCIAL' },
-    { nis: '004', name: 'Restaurante La Esquina', category: 'COMERCIAL' },
-    { nis: '005', name: 'Casa Comunal San Rafael', category: 'PUBLICO' },
+  const subscribersData = [
+    { nis: '001', name: 'Juan Carlos Pérez', category: 'DOMICILIAR' as const },
+    { nis: '002', name: 'María López Solís', category: 'DOMICILIAR' as const },
+    { nis: '003', name: 'Tienda Don Pedro', category: 'COMERCIAL' as const },
+    { nis: '004', name: 'Restaurante La Esquina', category: 'COMERCIAL' as const },
+    { nis: '005', name: 'Casa Comunal San Rafael', category: 'PUBLICO' as const },
   ];
 
   const createdSubscribers = [];
-  for (const sub of subscribers) {
-    const created = await prisma.subscriber.upsert({
-      where: { tenantId_nis: { tenantId: asadaPrueba.id, nis: sub.nis } },
-      update: {},
-      create: {
+  for (const sub of subscribersData) {
+    const existing = await prisma.subscriber.findFirst({
+      where: { tenantId: asadaPrueba.id, nis: sub.nis },
+    });
+    const created = existing || await prisma.subscriber.create({
+      data: {
         id: uuidv4(),
         tenantId: asadaPrueba.id,
-        ...sub,
+        nis: sub.nis,
+        name: sub.name,
+        category: sub.category,
       },
     });
     createdSubscribers.push(created);
