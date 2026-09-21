@@ -1,24 +1,15 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // Asegúrate de tener este export
-import { encrypt } from '@/lib/crypto'; // Helper para encriptar el PIN
+import { prisma } from '@/lib/prisma';
+import { encrypt } from '@/lib/crypto';
 
 export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    // 1. Validación básica de datos
     if (!data.tenantName || !data.haciendaUser || !data.llaveCryptBase64) {
       return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 });
     }
 
-    // 2. Validación técnica: Probar conexión a Hacienda (Dry Run)
-    // Nota: Aquí llamarías a tu servicio de validador de Hacienda
-    const isValid = await validateHaciendaCredentials(data);
-    if (!isValid) {
-      return NextResponse.json({ error: 'Credenciales de Hacienda inválidas' }, { status: 422 });
-    }
-
-    // 3. Crear el Tenant y su Configuración en una Transacción
     const result = await prisma.$transaction(async (tx) => {
       const tenant = await tx.tenant.create({
         data: {
@@ -33,7 +24,7 @@ export async function POST(request: Request) {
         data: {
           tenantId: tenant.id,
           haciendaUser: data.haciendaUser,
-          haciendaPassword: data.haciendaPassword,
+          haciendaPassword: encrypt(data.haciendaPassword),
           llaveCryptBase64: data.llaveCryptBase64,
           llavePin: encrypt(data.llavePin),
         },
@@ -47,11 +38,4 @@ export async function POST(request: Request) {
     console.error('Error en onboarding:', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
-}
-
-// Mock de validación (debes reemplazar con tu lógica de integración real)
-async function validateHaciendaCredentials(data: any): Promise<boolean> {
-  // Aquí va la lógica real: llamar al endpoint de autenticación de Hacienda
-  // Si devuelve 200, es true.
-  return true;
 }

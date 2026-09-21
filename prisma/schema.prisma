@@ -8,13 +8,65 @@ datasource db {
   directUrl = env("DIRECT_DATABASE_URL")
 }
 
+enum UserRole {
+  PLATFORM_OWNER
+  ADMIN
+  ACCOUNTING
+  FIELD_STAFF
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum TenantPlan {
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  REJECTED
+  CANCELLED
+}
+
+enum HaciendaStatus {
+  PENDIENTE
+  ACEPTADO
+  RECHAZADO
+  EN_PROCESO
+}
+
+enum PaymentMethod {
+  EFECTIVO
+  TARJETA
+  SINPE_MOVIL
+  TRANSFERENCIA
+}
+
+enum PaymentStatus {
+  PROCESSED
+  REVERSED
+}
+
+enum SubscriberCategory {
+  DOMICILIAR
+  COMERCIAL
+  INDUSTRIAL
+  PUBLICO
+}
+
 model Tenant {
-  id           String   @id @default(uuid())
-  slug         String   @unique
+  id           String       @id @default(uuid())
+  slug         String       @unique
   name         String
-  plan         String
-  status       String
-  createdAt    DateTime @default(now())
+  plan         TenantPlan   @default(BASIC)
+  status       TenantStatus @default(ACTIVE)
+  createdAt    DateTime     @default(now())
 
   users        User[]
   subscribers  Subscriber[]
@@ -26,10 +78,66 @@ model Tenant {
   config       TenantConfig?
 }
 
+model TenantConfig {
+  tenantId          String   @id @unique
+  haciendaUser      String
+  haciendaPassword  String
+  llaveCryptBase64  String
+  llavePin          String
+  consecutive       Int      @default(1)
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  tenantId  String
+  email     String   @unique
+  name      String?
+  password  String
+  role      UserRole @default(ADMIN)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  registeredPayments Payment[]
+}
+
+model Subscriber {
+  id        String             @id @default(uuid())
+  tenantId  String
+  name      String
+  nis       String
+  category  SubscriberCategory @default(DOMICILIAR)
+  meters    Meter[]
+  invoices  Invoice[]
+  payments  Payment[]
+  tenant    Tenant             @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, nis])
+}
+
+model Meter {
+  id           String     @id @default(uuid())
+  tenantId     String
+  subscriberId String
+  number       String
+  readings     Reading[]
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id])
+}
+
+model Reading {
+  id        String   @id @default(uuid())
+  tenantId  String
+  meterId   String
+  value     Decimal
+  date      DateTime @default(now())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  meter     Meter    @relation(fields: [meterId], references: [id])
+}
+
 model Tariff {
   id              String   @id @default(uuid())
   tenantId        String
-  category        String
+  category        SubscriberCategory @default(DOMICILIAR)
   name            String
   baseCharge      Decimal
   baseCubicMeters Int      @default(15)
@@ -49,93 +157,50 @@ model TariffBlock {
   tariff          Tariff   @relation(fields: [tariffId], references: [id])
 }
 
-model TenantConfig {
-  tenantId          String   @id @unique
-  haciendaUser      String
-  haciendaPassword  String
-  llaveCryptBase64  String
-  llavePin          String
-  consecutive       Int      @default(1)
-  tenant            Tenant   @relation(fields: [tenantId], references: [id])
-}
-
-model User {
-  id        String   @id @default(uuid())
-  tenantId  String
-  email     String   @unique
-  role      String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-}
-
-model Subscriber {
-  id        String   @id @default(uuid())
-  tenantId  String
-  name      String
-  nis       String
-  category  String   @default("DOMICILIAR")
-  meters    Meter[]
-  invoices  Invoice[]
-  payments  Payment[]
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-}
-
-model Meter {
-  id           String     @id @default(uuid())
-  tenantId     String
-  subscriberId String
-  number       String
-  readings     Reading[]
-  tenant       Tenant     @relation(fields: [tenantId], references: [id])
-  subscriber   Subscriber @relation(fields: [subscriberId], references: [id])
-}
-
-model Reading {
-  id        String   @id @default(uuid())
-  tenantId  String
-  meterId   String
-  value     Decimal
-  date      DateTime
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  meter     Meter    @relation(fields: [meterId], references: [id])
-}
-
 model Invoice {
-  id              String   @id @default(uuid())
-  tenantId        String
-  subscriberId    String
-  consecutivo     String
-  clave           String   @unique
-  estadoHacienda  String
-  status          String   @default("PENDING")
-  subtotal        Decimal
-  impuestoIVA     Decimal
-  total           Decimal
+  id                 String         @id @default(uuid())
+  tenantId           String
+  subscriberId       String
+  consecutivo        String
+  clave              String         @unique
+  estadoHacienda     HaciendaStatus @default(PENDIENTE)
+  status             InvoiceStatus  @default(PENDING)
+  subtotal           Decimal
+  impuestoIVA        Decimal
+  total              Decimal
   periodoFacturacion String
-  fechaEmision    DateTime @default(now())
-  fechaVencimiento DateTime
-  detalleCalculo  Json
-  respuestaHacienda Json?
-  paymentDetails  Json?
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-  subscriber      Subscriber @relation(fields: [subscriberId], references: [id])
+  fechaEmision       DateTime       @default(now())
+  fechaVencimiento   DateTime
+  detalleCalculo     Json
+  respuestaHacienda  Json?
+  paymentDetails     Json?
+  tenant             Tenant         @relation(fields: [tenantId], references: [id])
+  subscriber         Subscriber     @relation(fields: [subscriberId], references: [id])
+  payments           Payment[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, subscriberId])
 }
 
 model Payment {
-  id              String   @id @default(uuid())
+  id              String        @id @default(uuid())
   tenantId        String
   invoiceId       String?
   subscriberId    String
   amount          Decimal
-  paymentDate     DateTime @default(now())
-  paymentMethod   String
+  paymentDate     DateTime      @default(now())
+  paymentMethod   PaymentMethod
   referenceNumber String?
   bankAccount     String?
-  status          String   @default("PROCESSED")
+  status          PaymentStatus @default(PROCESSED)
   registeredById  String
 
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-  subscriber      Subscriber @relation(fields: [subscriberId], references: [id])
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
+  subscriber      Subscriber    @relation(fields: [subscriberId], references: [id])
+  invoice         Invoice?      @relation(fields: [invoiceId], references: [id])
+  registeredBy    User          @relation(fields: [registeredById], references: [id])
 
   @@index([referenceNumber])
   @@index([paymentDate])
+  @@index([tenantId])
 }
