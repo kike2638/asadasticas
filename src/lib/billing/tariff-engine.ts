@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
+import { SubscriberCategory } from '@prisma/client';
 
-export async function getActiveTariff(tenantId: string, category: string) {
+export async function getActiveTariff(tenantId: string, category: SubscriberCategory) {
   return await prisma.tariff.findFirst({
     where: {
       tenantId,
