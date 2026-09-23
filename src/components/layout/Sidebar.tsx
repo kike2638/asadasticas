@@ -17,11 +17,11 @@ import { useState } from "react";
 
 const navMain = [
   {
-    label: "Inicio",
+    label: "Panel",
     items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
   },
   {
-    label: "Gestión",
+    label: "Operaciones",
     items: [
       { href: "/subscribers", label: "Abonados", icon: Users },
       { href: "/billing", label: "Facturación", icon: FileText },
@@ -45,32 +45,35 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`h-screen sticky top-0 shrink-0 bg-[#0c0c0f] border-r border-[#1f1f25] flex flex-col transition-[width] duration-300 ${
-        collapsed ? "w-[76px]" : "w-60"
+      className={`relative shrink-0 h-screen sticky top-0 flex flex-col transition-[width] duration-300 border-r border-[rgba(96,165,250,0.08)] bg-[rgba(5,9,22,0.72)] ${
+        collapsed ? "w-[76px]" : "w-64"
       }`}
     >
       {/* Logo */}
       <div
-        className={`h-16 flex items-center border-b border-[#1f1f25] ${
+        className={`h-16 flex items-center border-b border-[rgba(96,165,250,0.08)] ${
           collapsed ? "justify-center px-2" : "justify-between px-4"
         }`}
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0">
-            <Droplets className="w-5 h-5 text-white" />
+          <div className="relative w-10 h-10 rounded-2xl bg-[var(--brand-grad)] flex items-center justify-center shadow-[0_6px_24px_rgba(34,211,238,0.35)] shrink-0">
+            <Droplets className="w-5 h-5 text-[#042635]" />
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-[15px] font-semibold tracking-tight text-white leading-none">
+              <p className="text-[15px] font-bold tracking-tight leading-none">
                 ASADAS
+                <span className="ml-1.5 text-[10px] font-semibold text-[var(--brand)] align-super">
+                  v2
+                </span>
               </p>
-              <p className="text-[11px] text-secondary mt-1 leading-none tracking-wide">
-                ERP · Agua
+              <p className="text-[11px] text-muted mt-1.5 leading-none tracking-wide">
+                Gestión de Agua
               </p>
             </div>
           )}
         </div>
-        {!collapsed && (
+        {!collapsed ? (
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="p-1.5 rounded-lg hover:bg-white/5 text-muted hover:text-white transition-colors hidden lg:flex"
@@ -78,11 +81,10 @@ export function Sidebar() {
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-        )}
-        {collapsed && (
+        ) : (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="absolute -right-3 top-[26px] p-1 rounded-full bg-[#121216] border border-[#232329] text-muted hover:text-white transition-colors hidden lg:flex"
+            className="absolute -right-3 top-[26px] p-1 rounded-full bg-[#0d1428] border border-[rgba(96,165,250,0.2)] text-muted hover:text-white transition-colors hidden lg:flex"
             aria-label="Expandir menú"
           >
             <ChevronRight className="w-3.5 h-3.5" />
@@ -92,25 +94,8 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 py-4 overflow-y-auto">
-        {!collapsed &&
-          navMain.map((group) => (
-            <div key={group.label} className="mb-6 px-4">
-              <p className="section-label mb-2 px-2">{group.label}</p>
-              <div className="space-y-0.5">
-                {group.items.map((item) => (
-                  <NavItem
-                    key={item.href}
-                    href={item.href}
-                    label={item.label}
-                    icon={item.icon}
-                    active={pathname === item.href || pathname.startsWith(item.href + "/")}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        {collapsed && (
-          <div className="flex flex-col items-center gap-1 px-2">
+        {collapsed ? (
+          <div className="flex flex-col items-center gap-1.5 px-2">
             {navMain.flatMap((g) => g.items).map((item) => (
               <NavItem
                 key={item.href}
@@ -122,19 +107,52 @@ export function Sidebar() {
               />
             ))}
           </div>
+        ) : (
+          navMain.map((group) => (
+            <div key={group.label} className="mb-6 px-4">
+              <p className="section-label mb-2 px-3">{group.label}</p>
+              <div className="space-y-1">
+                {group.items.map((item) => (
+                  <NavItem
+                    key={item.href}
+                    href={item.href}
+                    label={item.label}
+                    icon={item.icon}
+                    active={pathname === item.href || pathname.startsWith(item.href + "/")}
+                  />
+                ))}
+              </div>
+            </div>
+          ))
         )}
       </nav>
 
-      {/* Bottom */}
-      <div className="p-3 border-t border-[#1f1f25]">
+      {/* System status + logout */}
+      {!collapsed && (
+        <div className="mx-4 mb-3 p-3 rounded-xl border border-[rgba(96,165,250,0.1)] bg-[rgba(34,211,238,0.05)]">
+          <div className="flex items-center gap-2.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+            </span>
+            <div className="text-[12px] leading-tight">
+              <p className="text-white font-medium">Sistema operativo</p>
+              <p className="text-muted">Base de datos conectada</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="p-3 border-t border-[rgba(96,165,250,0.08)]">
         <button
           onClick={handleLogout}
-          className={`flex items-center gap-3 rounded-xl text-sm font-medium text-secondary hover:text-red-400 hover:bg-red-500/10 transition-all w-full px-3 py-2.5 ${
+          className={`flex items-center gap-3 rounded-xl text-sm font-medium text-secondary hover:text-[var(--rose)] hover:bg-[rgba(251,113,133,0.08)] transition-all w-full px-3 py-2.5 ${
             collapsed ? "justify-center" : ""
           }`}
+          title="Cerrar sesión"
         >
           <LogOut className="w-5 h-5 shrink-0" />
-          {!collapsed && <span>Cerrar Sesión</span>}
+          {!collapsed && <span>Cerrar sesión</span>}
         </button>
       </div>
     </aside>
@@ -161,12 +179,11 @@ function NavItem({
         title={label}
         className={`relative w-11 h-11 flex items-center justify-center rounded-xl transition-all ${
           active
-            ? "text-sky-400 bg-sky-500/10"
+            ? "text-[#042635] bg-[var(--brand-grad)] shadow-[0_6px_16px_rgba(34,211,238,0.3)]"
             : "text-muted hover:text-white hover:bg-white/5"
         }`}
       >
         <Icon className="w-5 h-5" />
-        {active && <span className="absolute left-0 w-[3px] h-5 rounded-full bg-sky-400" />}
       </Link>
     );
   }
@@ -176,15 +193,15 @@ function NavItem({
       href={href}
       className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
         active
-          ? "text-white bg-white/[0.04]"
-          : "text-secondary hover:text-white hover:bg-white/[0.03]"
+          ? "text-white bg-[rgba(34,211,238,0.1)] border border-[rgba(34,211,238,0.2)]"
+          : "text-secondary hover:text-white hover:bg-white/[0.04] border border-transparent"
       }`}
     >
       {active && (
-        <span className="absolute left-0 w-[3px] h-5 rounded-full bg-sky-400" />
+        <span className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-[var(--brand-grad)] shadow-[0_0_12px_rgba(34,211,238,0.6)]" />
       )}
       <Icon
-        className={`w-5 h-5 shrink-0 ${active ? "text-sky-400" : "text-muted group-hover:text-white"}`}
+        className={`w-5 h-5 shrink-0 ${active ? "text-[var(--brand)]" : "text-muted group-hover:text-white"}`}
       />
       <span>{label}</span>
     </Link>

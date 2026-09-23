@@ -29,8 +29,9 @@ export default async function LecturasPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="animate-fade-in">
-        <h1 className="text-3xl font-bold text-white mb-1">Lecturas</h1>
-        <p className="text-gray-400">{readings.length} lecturas recientes</p>
+        <p className="section-label mb-1.5">Operaciones</p>
+        <h1 className="page-title mb-1">Lecturas</h1>
+        <p className="page-subtitle">{readings.length} lecturas recientes</p>
       </div>
 
       {/* Stats */}

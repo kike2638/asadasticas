@@ -39,8 +39,9 @@ export default async function PaymentsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="animate-fade-in">
-        <h1 className="text-3xl font-bold text-white mb-1">Pagos</h1>
-        <p className="text-gray-400">{payments.length} pagos registrados</p>
+        <p className="section-label mb-1.5">Operaciones</p>
+        <h1 className="page-title mb-1">Pagos</h1>
+        <p className="page-subtitle">{payments.length} pagos registrados</p>
       </div>
 
       {/* Stats */}

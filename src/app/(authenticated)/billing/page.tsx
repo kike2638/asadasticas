@@ -81,8 +81,9 @@ export default function BillingPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="animate-fade-in">
-        <h1 className="text-3xl font-bold text-white mb-1">Facturación</h1>
-        <p className="text-gray-400">Calcule y genere facturas para abonados</p>
+        <p className="section-label mb-1.5">Operaciones</p>
+        <h1 className="page-title mb-1">Facturación</h1>
+        <p className="page-subtitle">Calcule y genere facturas para abonados</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
