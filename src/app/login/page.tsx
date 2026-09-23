@@ -44,49 +44,50 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-[#0a0a0f]">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[150px]" />
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-[#09090b]">
+      {/* Vignette */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_50%_-10%,rgba(14,165,233,0.08),transparent_60%)]" />
 
-      {/* Grid pattern */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-        backgroundSize: '60px 60px'
-      }} />
-
-      <div className="relative z-10 w-full max-w-md px-6 animate-fade-in">
+      <div className="relative z-10 w-full max-w-sm px-6 animate-scale-in">
         {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 mb-6 shadow-lg shadow-blue-500/25">
-            <Droplets className="w-10 h-10 text-white" />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-400 shadow-lg shadow-sky-500/25 mb-5">
+            <Droplets className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">ASADAS ERP</h1>
-          <p className="text-gray-400">Sistema de Gestión de Agua Potable</p>
+          <h1 className="text-[22px] font-semibold tracking-tight text-white">
+            ASADAS ERP
+          </h1>
+          <p className="text-sm text-secondary mt-1.5">
+            Gestión de agua potable
+          </p>
         </div>
 
         {/* Card */}
-        <div className="glass rounded-2xl p-8 shadow-2xl">
-          <h2 className="text-xl font-semibold text-white mb-6">Iniciar Sesión</h2>
+        <div className="card p-6">
+          <h2 className="text-lg font-semibold tracking-tight text-white mb-6">
+            Iniciar sesión
+          </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl flex items-center gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0" />
+              <div className="flex items-center gap-2.5 rounded-lg bg-[var(--red-soft)] border border-red-500/20 px-3.5 py-2.5 text-sm text-[var(--red)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--red)] shrink-0" />
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Correo Electrónico
+              <label
+                htmlFor="email"
+                className="block text-[13px] font-medium text-secondary mb-1.5"
+              >
+                Correo electrónico
               </label>
               <input
+                id="email"
                 name="email"
                 type="email"
+                autoComplete="email"
                 required
                 className="input-modern"
                 placeholder="admin@asadas-erp.cr"
@@ -94,12 +95,17 @@ function LoginForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-[13px] font-medium text-secondary mb-1.5"
+              >
                 Contraseña
               </label>
               <input
+                id="password"
                 name="password"
                 type="password"
+                autoComplete="current-password"
                 required
                 className="input-modern"
                 placeholder="••••••••"
@@ -109,29 +115,32 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full flex items-center justify-center gap-2"
+              className="btn-primary w-full"
             >
               {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <>
-                  Iniciar Sesión
-                  <ArrowRight className="w-5 h-5" />
+                  Entrar
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-white/5">
-            <p className="text-xs text-gray-500 text-center">
-              Credenciales de prueba: admin@asadas-erp.cr / admin123
+          <div className="mt-6 pt-5 border-t border-[#232329]">
+            <p className="text-xs text-muted text-center leading-relaxed">
+              Credenciales de prueba:
+              <br />
+              <span className="text-secondary">admin@asadas-erp.cr</span>
+              {" / "}
+              <span className="text-secondary">admin123</span>
             </p>
           </div>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-gray-500 text-sm mt-8">
-          © 2026 ASADAS ERP. Gestión inteligente de agua.
+        <p className="text-center text-xs text-muted mt-8">
+          © 2026 ASADAS ERP
         </p>
       </div>
     </div>
@@ -140,11 +149,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-      </div>
-    }>
+    <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}>
       <LoginForm />
     </Suspense>
   );

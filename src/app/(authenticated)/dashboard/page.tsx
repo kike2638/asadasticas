@@ -40,38 +40,38 @@ export default async function DashboardPage() {
     {
       label: "Total Abonados",
       value: subscriberCount.toString(),
-      change: "+12%",
+      delta: "+12%",
       up: true,
       icon: Users,
-      gradient: "from-blue-500 to-cyan-400",
-      shadow: "shadow-blue-500/20",
+      tint: "text-sky-400 bg-sky-500/10",
+      ring: "ring-sky-500/20",
     },
     {
       label: "Facturas Emitidas",
       value: invoiceCount.toString(),
-      change: "+8%",
+      delta: "+8%",
       up: true,
       icon: FileText,
-      gradient: "from-purple-500 to-pink-400",
-      shadow: "shadow-purple-500/20",
+      tint: "text-violet-400 bg-violet-500/10",
+      ring: "ring-violet-500/20",
     },
     {
       label: "Pendientes",
       value: pendingInvoices.toString(),
-      change: "-3%",
+      delta: "-3%",
       up: false,
       icon: Clock,
-      gradient: "from-orange-500 to-yellow-400",
-      shadow: "shadow-orange-500/20",
+      tint: "text-amber-400 bg-amber-500/10",
+      ring: "ring-amber-500/20",
     },
     {
       label: "Ingresos Totales",
       value: `₡${(totalRevenue._sum.amount?.toNumber() || 0).toLocaleString()}`,
-      change: "+18%",
+      delta: "+18%",
       up: true,
       icon: TrendingUp,
-      gradient: "from-green-500 to-emerald-400",
-      shadow: "shadow-green-500/20",
+      tint: "text-emerald-400 bg-emerald-500/10",
+      ring: "ring-emerald-500/20",
     },
   ];
 
@@ -79,134 +79,163 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="animate-fade-in">
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-gray-400">Resumen de tu ASADA</p>
+        <p className="section-label mb-1.5">Resumen general</p>
+        <h1 className="page-title mb-1">Dashboard</h1>
+        <p className="page-subtitle">Panorama de tu ASADA hoy</p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {kpis.map((kpi, index) => {
           const Icon = kpi.icon;
           return (
             <div
               key={kpi.label}
-              className="glass rounded-2xl p-6 hover:bg-white/[0.03] transition-all group animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="card card-hover p-5 animate-fade-in"
+              style={{ animationDelay: `${index * 60}ms` }}
             >
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between mb-5">
                 <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${kpi.gradient} flex items-center justify-center shadow-lg ${kpi.shadow}`}
+                  className={`w-10 h-10 rounded-[10px] ${kpi.tint} flex items-center justify-center ring-1 ${kpi.ring}`}
                 >
-                  <Icon className="w-6 h-6 text-white" />
+                  <Icon className="w-5 h-5" />
                 </div>
-                <div
-                  className={`flex items-center gap-1 text-xs font-medium ${
-                    kpi.up ? "text-green-400" : "text-red-400"
+                <span
+                  className={`inline-flex items-center gap-0.5 text-xs font-medium ${
+                    kpi.up ? "text-emerald-400" : "text-red-400"
                   }`}
                 >
                   {kpi.up ? (
-                    <ArrowUpRight className="w-3 h-3" />
+                    <ArrowUpRight className="w-3.5 h-3.5" />
                   ) : (
-                    <ArrowDownRight className="w-3 h-3" />
+                    <ArrowDownRight className="w-3.5 h-3.5" />
                   )}
-                  {kpi.change}
-                </div>
+                  {kpi.delta}
+                </span>
               </div>
-              <p className="text-2xl font-bold text-white mb-1">{kpi.value}</p>
-              <p className="text-sm text-gray-400">{kpi.label}</p>
+              <p className="text-[26px] font-semibold tracking-tight text-white leading-none mb-1.5">
+                {kpi.value}
+              </p>
+              <p className="text-[13px] text-muted">{kpi.label}</p>
             </div>
           );
         })}
       </div>
 
       {/* Quick Actions + Recent Payments */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Quick Actions */}
-        <div className="glass rounded-2xl p-6 animate-fade-in" style={{ animationDelay: "400ms" }}>
-          <h2 className="text-lg font-semibold text-white mb-4">Acciones Rápidas</h2>
-          <div className="space-y-3">
+        <div className="card p-6 animate-fade-in" style={{ animationDelay: "240ms" }}>
+          <h2 className="text-[15px] font-semibold tracking-tight text-white mb-1">
+            Acciones rápidas
+          </h2>
+          <p className="text-[13px] text-muted mb-5">
+            Atajos para operar tu ASADA
+          </p>
+          <div className="space-y-1.5">
             <a
               href="/billing"
-              className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-transparent hover:from-blue-500/20 transition-all group"
+              className="flex items-center gap-3.5 p-3 rounded-xl hover:bg-white/[0.03] transition-colors group"
             >
-              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-                <FileText className="w-5 h-5 text-blue-400" />
+              <div className="w-10 h-10 rounded-[10px] bg-sky-500/10 ring-1 ring-sky-500/20 flex items-center justify-center shrink-0">
+                <FileText className="w-5 h-5 text-sky-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-white">Nueva Factura</p>
-                <p className="text-xs text-gray-400">Generar factura para abonado</p>
+                <p className="text-sm font-medium text-white">Nueva factura</p>
+                <p className="text-xs text-muted">Generar factura para abonado</p>
               </div>
+              <ArrowUpRight className="w-4 h-4 text-muted ml-auto group-hover:text-sky-400 transition-colors" />
             </a>
             <a
               href="/subscribers"
-              className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-transparent hover:from-purple-500/20 transition-all group"
+              className="flex items-center gap-3.5 p-3 rounded-xl hover:bg-white/[0.03] transition-colors group"
             >
-              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
-                <Users className="w-5 h-5 text-purple-400" />
+              <div className="w-10 h-10 rounded-[10px] bg-violet-500/10 ring-1 ring-violet-500/20 flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5 text-violet-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-white">Ver Abonados</p>
-                <p className="text-xs text-gray-400">Gestionar abonados activos</p>
+                <p className="text-sm font-medium text-white">Ver abonados</p>
+                <p className="text-xs text-muted">Abonados activos del sistema</p>
               </div>
+              <ArrowUpRight className="w-4 h-4 text-muted ml-auto group-hover:text-violet-400 transition-colors" />
             </a>
             <a
               href="/payments"
-              className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-green-500/10 to-transparent hover:from-green-500/20 transition-all group"
+              className="flex items-center gap-3.5 p-3 rounded-xl hover:bg-white/[0.03] transition-colors group"
             >
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
-                <Zap className="w-5 h-5 text-green-400" />
+              <div className="w-10 h-10 rounded-[10px] bg-emerald-500/10 ring-1 ring-emerald-500/20 flex items-center justify-center shrink-0">
+                <Zap className="w-5 h-5 text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-white">Registrar Pago</p>
-                <p className="text-xs text-gray-400">Registrar pago de abonado</p>
+                <p className="text-sm font-medium text-white">Registrar pago</p>
+                <p className="text-xs text-muted">Registrar pago de un abonado</p>
               </div>
+              <ArrowUpRight className="w-4 h-4 text-muted ml-auto group-hover:text-emerald-400 transition-colors" />
             </a>
           </div>
         </div>
 
         {/* Recent Payments */}
-        <div className="lg:col-span-2 glass rounded-2xl p-6 animate-fade-in" style={{ animationDelay: "500ms" }}>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">Pagos Recientes</h2>
-            <a href="/payments" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-              Ver todos →
+        <div
+          className="lg:col-span-2 card p-6 animate-fade-in"
+          style={{ animationDelay: "300ms" }}
+        >
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-[15px] font-semibold tracking-tight text-white mb-0.5">
+                Pagos recientes
+              </h2>
+              <p className="text-[13px] text-muted">
+                Últimos abonos registrados
+              </p>
+            </div>
+            <a
+              href="/payments"
+              className="inline-flex items-center gap-1 text-sm text-[var(--accent-text)] hover:text-[var(--accent-hover)] transition-colors"
+            >
+              Ver todos
+              <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>
 
           {recentPayments.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                <Droplets className="w-8 h-8 text-gray-500" />
+            <div className="text-center py-14">
+              <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center mx-auto mb-4">
+                <Droplets className="w-7 h-7 text-muted" />
               </div>
-              <p className="text-gray-400">No hay pagos registrados aún</p>
+              <p className="text-secondary text-sm">No hay pagos registrados aún</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {recentPayments.map((payment, index) => (
+            <div className="divide-y divide-[#1f1f25]">
+              {recentPayments.map((payment) => (
                 <div
                   key={payment.id}
-                  className="flex items-center justify-between p-3 rounded-xl hover:bg-white/[0.03] transition-colors"
+                  className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
-                      <span className="text-sm font-bold text-green-400">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500/15 to-cyan-400/15 ring-1 ring-white/5 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-semibold text-white">
                         {payment.subscriber.name.charAt(0)}
                       </span>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white truncate">
                         {payment.subscriber.name}
                       </p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(payment.paymentDate).toLocaleDateString("es-CR")}
+                      <p className="text-xs text-muted">
+                        {new Date(payment.paymentDate).toLocaleDateString("es-CR", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <p className="text-sm font-semibold text-white">
                       ₡{payment.amount.toNumber().toLocaleString()}
                     </p>
-                    <span className="badge badge-green text-[10px]">
+                    <span className="badge badge-green text-[11px]">
                       {payment.paymentMethod}
                     </span>
                   </div>
@@ -218,25 +247,20 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Bar */}
-      <div className="glass rounded-2xl p-6 animate-fade-in" style={{ animationDelay: "600ms" }}>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-white">15</p>
-            <p className="text-sm text-gray-400 mt-1">Lecturas Hoy</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in" style={{ animationDelay: "360ms" }}>
+        {[
+          { value: "15", label: "Lecturas hoy" },
+          { value: "98%", label: "Colección" },
+          { value: "3", label: "Alertas" },
+          { value: "45 m³", label: "Promedio" },
+        ].map((stat) => (
+          <div key={stat.label} className="card card-hover p-5 text-center">
+            <p className="text-2xl font-semibold tracking-tight text-white">
+              {stat.value}
+            </p>
+            <p className="text-[13px] text-muted mt-1">{stat.label}</p>
           </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-white">98%</p>
-            <p className="text-sm text-gray-400 mt-1">Colección</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-white">3</p>
-            <p className="text-sm text-gray-400 mt-1">Alertas</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-white">45m³</p>
-            <p className="text-sm text-gray-400 mt-1">Promedio</p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
