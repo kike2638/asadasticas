@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Droplets, ArrowRight, Loader2 } from "lucide-react";
 
@@ -22,21 +21,24 @@ function LoginForm() {
     const password = formData.get("password") as string;
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (result?.error) {
-        setError("Credenciales inválidas");
-      } else {
-        router.push(callbackUrl);
-        router.refresh();
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Credenciales inválidas");
+        setLoading(false);
+        return;
       }
+
+      router.push(callbackUrl);
+      router.refresh();
     } catch {
       setError("Error al conectar con el servidor");
-    } finally {
       setLoading(false);
     }
   };
@@ -73,7 +75,7 @@ function LoginForm() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl flex items-center gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full" />
+                <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0" />
                 {error}
               </div>
             )}

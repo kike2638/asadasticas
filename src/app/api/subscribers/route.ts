@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth/config";
+import { headers } from "next/headers";
 
 export async function GET() {
-  const session = await auth();
-  if (!session) {
+  const headersList = await headers();
+  const tenantId = headersList.get("x-tenant-id");
+
+  if (!tenantId) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-
-  const tenantId = (session.user as any).tenantId;
 
   const subscribers = await prisma.subscriber.findMany({
     where: { tenantId },

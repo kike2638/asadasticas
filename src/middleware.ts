@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import jwt from 'jsonwebtoken';
+
+const SECRET = process.env.NEXTAUTH_SECRET || "asadas-erp-secret-key-2026-change-in-production";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -16,10 +18,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
+  const token = request.cookies.get('auth-token')?.value;
 
   // Redirect to login if not authenticated
   if (!token) {
@@ -28,16 +27,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Validate tenant from session
-  const tenantSlug = token.tenantSlug as string;
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-tenant-id', token.tenantId as string);
-  requestHeaders.set('x-user-id', token.sub!);
-  requestHeaders.set('x-user-role', token.role as string);
+  try {
+    const decoded = jwt.verify(token, SECRET) as any;
 
-  return NextResponse.next({
-    request: { headers: requestHeaders },
-  });
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-tenant-id', decoded.tenantId);
+    requestHeaders.set('x-user-id', decoded.sub);
+    requestHeaders.set('x-user-role', decoded.role);
+    requestHeaders.set('x-user-email', decoded.email);
+
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+  } catch (error) {
+    // Invalid token, redirect to login
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 }
 
 export const config = {

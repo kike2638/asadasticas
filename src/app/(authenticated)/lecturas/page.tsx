@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth/config";
+import { getServerUser } from "@/lib/auth/helper";
 import { redirect } from "next/navigation";
 import {
   Gauge,
@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 
 export default async function LecturasPage() {
-  const session = await auth();
+  const session = await getServerUser();
   if (!session) redirect("/login");
 
-  const tenantId = (session.user as any).tenantId;
+  const tenantId = session.user.tenantId;
 
   const readings = await prisma.reading.findMany({
     where: { tenantId },
