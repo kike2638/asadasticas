@@ -91,8 +91,10 @@ export async function middleware(request: NextRequest) {
   if (cur.n > 120) return new NextResponse("Too Many Requests", { status: 429 });
 
   if (
+    pathname === '/' ||
     pathname.startsWith('/login') ||
     pathname.startsWith('/portal') ||
+    pathname.startsWith('/onboarding') ||
     pathname.startsWith('/api/portal') ||
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/cron') ||
