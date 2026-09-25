@@ -36,6 +36,10 @@ export async function buildReminderQueue(tenantId: string): Promise<ReminderItem
   const sinpe = cfg?.sinpeNumero ? `${cfg.sinpeNumero}${cfg.sinpeNombre ? ` (${cfg.sinpeNombre})` : ""}` : undefined;
   const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
 
+  // Batch dedup: carga hoy's logs una vez (evita N+1)
+  const hoyStart = new Date(new Date().setHours(0, 0, 0, 0));
+  const hoyLogs = await prisma.notificationLog.findMany({ where: { tenantId, createdAt: { gte: hoyStart } }, select: { invoiceId: true, tipo: true } });
+  const sentSet = new Set(hoyLogs.map(l => `${l.invoiceId}:${l.tipo}`));
   const queue: ReminderItem[] = [];
 
   for (const inv of facturas) {
@@ -53,12 +57,7 @@ export async function buildReminderQueue(tenantId: string): Promise<ReminderItem
     else if (dias === -45) tipo = "CORTE_AVISO";
 
     if (!tipo) continue;
-
-    // Evita duplicado: ya enviado mismo tipo para esta factura hoy
-    const yaEnviado = await prisma.notificationLog.findFirst({
-      where: { tenantId, invoiceId: inv.id, tipo, createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } },
-    });
-    if (yaEnviado) continue;
+    if (sentSet.has(`${inv.id}:${tipo}`)) continue;
 
     const totalStr = formatCRC(Number(inv.total));
     let mensaje = "";

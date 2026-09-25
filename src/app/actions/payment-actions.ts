@@ -6,17 +6,22 @@ import { revalidatePath } from 'next/cache';
  * Esto cierra el ciclo financiero básico de la ASADA.
  */
 export async function markInvoiceAsPaid(invoiceId: string, paymentMethod: string, referenceNumber: string) {
+  // DEPRECATED: usar registerPayment FIFO. Este stub solo marca PAID y está deshabilitado para evitar corrupción.
+  console.warn("markInvoiceAsPaid deprecated - use registerPayment");
   try {
+    const inv = await prisma.invoice.findUnique({ where: { id: invoiceId }, select: { tenantId: true } });
+    if (!inv) throw new Error("Factura no encontrada");
     const updatedInvoice = await prisma.invoice.update({
       where: { id: invoiceId },
       data: {
         status: 'PAID',
-        respuestaHacienda: { legacyPayment: { method: paymentMethod, reference: referenceNumber, paidAt: new Date() } } as any,
+        saldoPendiente: 0,
+        respuestaHacienda: { legacyPayment: { method: paymentMethod, reference: referenceNumber, paidAt: new Date(), deprecated: true } } as any,
       },
     });
 
-    // Refrescamos la vista administrativa para que el pago aparezca inmediatamente
-    revalidatePath('/[tenant]/dashboard/facturacion');
+    revalidatePath('/payments');
+    revalidatePath('/caja');
 
     return { success: true, invoice: updatedInvoice };
   } catch (error) {

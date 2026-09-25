@@ -9,9 +9,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
   const payment = await prisma.payment.findFirst({
     where: { id: params.id, tenantId },
-    include: { subscriber: true, invoice: true, tenant: true },
+    include: { subscriber: { include: { meters: true } }, invoice: true, tenant: { include: { config: true } } },
   });
   if (!payment) return NextResponse.json({ error: "Pago no encontrado" }, { status: 404 });
+  const cfg: any = (payment.tenant as any).config;
 
   // Retorna JSON para que el frontend genere PDF con @react-pdf/renderer
   // En prod: renderToStream(<ReceiptDoc data={...} />)
@@ -28,9 +29,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
       consumo: (payment.invoice as any)?.detalleCalculo?.consumption ?? "—",
       prev: (payment.invoice as any)?.detalleCalculo?.prevValue ?? "—",
       curr: (payment.invoice as any)?.detalleCalculo?.currentReading ?? "—",
-      medidor: "—",
+      medidor: payment.subscriber.meters[0]?.number ?? "—",
       detalle: [
-        { label: "Subtotal", value: `¢${payment.invoice?.subtotal ?? payment.amount}` },
+        { label: "Subtotal exento", value: `¢${payment.invoice?.subtotalExento ?? 0}` },
+        { label: "Subtotal gravado", value: `¢${payment.invoice?.subtotalGravado ?? 0}` },
         { label: "IVA", value: `¢${payment.invoice?.impuestoIVA ?? 0}` },
       ],
       subtotalExento: `¢${payment.invoice?.subtotalExento ?? 0}`,
@@ -40,7 +42,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
       metodoPago: payment.paymentMethod,
       referencia: payment.referenceNumber,
       saldoPendiente: `¢${payment.invoice?.saldoPendiente ?? 0}`,
-      telefono: "8888-XXXX",
+      telefono: cfg?.sinpeNumero ?? payment.tenant.telefono ?? "—",
+      sinpeNombre: cfg?.sinpeNombre ?? payment.tenant.name,
+      logoUrl: (payment.tenant as any).logoUrl ?? null,
     },
   });
 }

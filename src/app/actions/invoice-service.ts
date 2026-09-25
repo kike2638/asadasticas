@@ -28,12 +28,17 @@ export async function createInvoice({
 }) {
   const meter = await prisma.meter.findUnique({ where: { id: meterId }, include: { subscriber: true } });
   if (!meter) throw new Error("Medidor no encontrado");
+  if (meter.tenantId !== tenantId) throw new Error("Medidor no pertenece a esta ASADA");
+  const subscriber = await prisma.subscriber.findUnique({ where: { id: subscriberId } });
+  if (!subscriber || subscriber.tenantId !== tenantId) throw new Error("Abonado no pertenece a esta ASADA");
+  if (meter.subscriberId !== subscriberId) throw new Error("Medidor no corresponde al abonado");
 
   const lastReading = await prisma.reading.findFirst({ where: { meterId }, orderBy: { date: "desc" } });
   const prevValue = lastReading?.value.toNumber() ?? 0;
   const consumption = currentReading - prevValue;
-
   if (consumption < 0) throw new Error(`Lectura ${currentReading} menor que anterior ${prevValue} - verifique medidor`);
+  if (!lastReading && currentReading > 800) throw new Error(`Primera lectura ${currentReading} m³ inválida - verifique medidor nuevo`);
+  if (consumption > 100) throw new Error(`Consumo ${consumption} m³ atípico - requiere confirmación supervisor`);
 
   const anomaliaDetectada = anomalia ?? detectAnomalia(consumption);
   if (anomaliaDetectada === "CONSUMO_EXCESIVO") {
@@ -63,10 +68,18 @@ export async function createInvoice({
     meter.subscriber.category
   );
 
+  // Validar periodo duplicado
+  const periodoCheck = new Date().toISOString().slice(0, 7);
+  const dup = await prisma.invoice.findFirst({ where: { tenantId, subscriberId, periodoFacturacion: periodoCheck } });
+  if (dup) throw new Error(`Ya existe factura para periodo ${periodoCheck} (consecutivo ${dup.consecutivo})`);
+
   // Transacción atómica: lock consecutivo + crear factura + lectura
   const invoice = await prisma.$transaction(async (tx) => {
+    // Lock pesimista para evitar consecutivo duplicado en bulk concurrente
+    await tx.$executeRaw`SELECT * FROM "TenantConfig" WHERE "tenantId" = ${tenantId} FOR UPDATE`;
     const config = await tx.tenantConfig.findUnique({ where: { tenantId } });
     if (!config) throw new Error("Configuración Hacienda no encontrada - complete onboarding");
+    if (!config.sinpeNumero) throw new Error("Configure SINPE de la ASADA antes de facturar");
 
     const isTE = tipoComprobante === "TIQUETE_ELECTRONICO";
     const tipoCodigo = isTE ? "04" : "01";
@@ -74,10 +87,11 @@ export async function createInvoice({
     const numeroActual = (config as any)[campoConsec] as number;
 
     const consecutivo20 = generarConsecutivo20(config.sucursal, config.terminal, tipoCodigo, numeroActual);
-    const consecutivo10 = String(numeroActual).padStart(10, "0");
 
     const tenant = await tx.tenant.findUnique({ where: { id: tenantId } });
-    const cedula = (tenant?.cedulaJuridica ?? "000000000000").replace(/\D/g, "").padStart(12, "0");
+    let cedula = (tenant?.cedulaJuridica ?? "").replace(/\D/g, "").padStart(12, "0");
+    if (!tenant?.cedulaJuridica || cedula === "000000000000") throw new Error("Cédula jurídica ASADA no configurada - complete en Configuración");
+    if (cedula.length !== 12) throw new Error(`Cédula ${cedula} inválida para Hacienda (debe ser 12 dígitos)`);
 
     const clave = generarClave50({
       cedulaJuridica: cedula,
@@ -88,7 +102,10 @@ export async function createInvoice({
 
     const periodo = new Date().toISOString().slice(0, 7);
     const vence = new Date();
-    vence.setDate(vence.getDate() + 15); // ASADAS: vencimiento 15 días, no 30
+    vence.setDate(vence.getDate() + 15);
+    // Redondeo final centavos
+    const totalRedondeado = Math.round(bill.total * 100) / 100;
+    const ivaRedondeado = Math.round(bill.iva * 100) / 100;
 
     const inv = await tx.invoice.create({
       data: {
@@ -99,12 +116,12 @@ export async function createInvoice({
         clave,
         estadoHacienda: "PENDIENTE",
         status: "PENDING",
-        subtotal: bill.subtotalGravado + bill.subtotalExento,
-        subtotalExento: bill.subtotalExento,
-        subtotalGravado: bill.subtotalGravado,
-        impuestoIVA: bill.iva,
-        total: bill.total,
-        saldoPendiente: bill.total,
+        subtotal: Math.round((bill.subtotalGravado + bill.subtotalExento) * 100) / 100,
+        subtotalExento: Math.round(bill.subtotalExento * 100) / 100,
+        subtotalGravado: Math.round(bill.subtotalGravado * 100) / 100,
+        impuestoIVA: ivaRedondeado,
+        total: totalRedondeado,
+        saldoPendiente: totalRedondeado,
         periodoFacturacion: periodo,
         fechaVencimiento: vence,
         detalleCalculo: {

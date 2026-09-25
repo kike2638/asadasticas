@@ -8,7 +8,14 @@ export default async function AdminPage() {
   if (s.user.role !== "PLATFORM_OWNER") redirect("/dashboard");
 
   const tenants = await prisma.tenant.findMany({ include: { _count: { select: { subscribers: true, invoices: true } } }, orderBy: { createdAt: "desc" } });
-  const totalMRR = tenants.length * 49000; // ejemplo plan $49
+  const { calculateSubscription } = await import("@/lib/saas/pricing");
+  let totalMRR = 0;
+  for (const t of tenants) {
+    if (t.slug === "plataforma-admin") continue;
+    // @ts-ignore
+    const c = await prisma.subscriber.count({ where: { tenantId: t.id } });
+    totalMRR += calculateSubscription(c).montoCRC;
+  }
 
   return (
     <div className="space-y-6">

@@ -12,7 +12,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Se esperaba array de lecturas" }, { status: 400 });
     }
 
-    // Validación + anomalía + GPS
+    for (const r of readings) {
+      if (!r.meterId || r.value === undefined) return NextResponse.json({ error: "meterId y value requeridos" }, { status: 400 });
+      const m = await prisma.meter.findUnique({ where: { id: r.meterId } });
+      if (!m || m.tenantId !== tenantId) return NextResponse.json({ error: `Medidor ${r.meterId} no pertenece a esta ASADA` }, { status: 403 });
+      if (Number(r.value) < 0) return NextResponse.json({ error: "Lectura no puede ser negativa" }, { status: 400 });
+      const last = await prisma.reading.findFirst({ where: { meterId: r.meterId }, orderBy: { date: "desc" } });
+      if (last && Number(r.value) < Number(last.value) && !r.anomalia) return NextResponse.json({ error: `Lectura ${r.value} menor que anterior ${last.value} para ${m.number}` }, { status: 400 });
+    }
+
     const toCreate = readings.map((r: any) => ({
       tenantId,
       meterId: r.meterId,
@@ -20,9 +28,11 @@ export async function POST(request: Request) {
       date: r.date ? new Date(r.date) : new Date(),
       anomalia: r.anomalia ?? "NONE",
       observacion: r.observacion ?? null,
+      fotoUrl: r.fotoUrl ?? null,
       gpsLat: r.gpsLat ?? null,
       gpsLng: r.gpsLng ?? null,
       lectorId: r.lectorId ?? null,
+      consumoCalculado: r.consumoCalculado ?? null,
     }));
 
     const result = await prisma.$transaction(

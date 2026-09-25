@@ -21,8 +21,16 @@ export async function registerPayment({
   cashClosingId?: string;
 }) {
   if (!reference || reference.trim().length < 3) throw new Error("Referencia requerida (SINPE/comprobante)");
-  const existing = await prisma.payment.findFirst({ where: { tenantId, referenceNumber: reference } });
+  const normalizedRef = reference.replace(/\D/g, "");
+  const existing = await prisma.payment.findFirst({ where: { tenantId, referenceNumber: normalizedRef } });
   if (existing) throw new Error("Referencia duplicada - ya registrada");
+  // Validar no duplicado por monto + fecha (±3 días) usando helper
+  const { isDuplicateSinpe } = await import("@/lib/sinpe/validator");
+  const recent = await prisma.payment.findMany({ where: { tenantId, paymentDate: { gte: new Date(Date.now() - 3 * 86400000) } }, select: { referenceNumber: true, amount: true, paymentDate: true } });
+  if (isDuplicateSinpe(normalizedRef, amount, recent as any)) throw new Error("SINPE duplicado por monto y fecha - verifique");
+  // Validar abonado pertenece
+  const subCheck = await prisma.subscriber.findUnique({ where: { id: subscriberId } });
+  if (!subCheck || subCheck.tenantId !== tenantId) throw new Error("Abonado no pertenece a esta ASADA");
 
   return await prisma.$transaction(async (tx: any) => {
     let remaining = amount;
@@ -70,9 +78,9 @@ export async function registerPayment({
       data: {
         tenantId, subscriberId,
         invoiceId: applied[0]?.invoiceId ?? invoiceId ?? null,
-        amount,
+        amount: Math.round(amount * 100) / 100,
         paymentMethod: method as any,
-        referenceNumber: reference,
+        referenceNumber: normalizedRef,
         registeredById: userId,
         cashClosingId: cashClosingId ?? null,
       },

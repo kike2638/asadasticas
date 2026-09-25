@@ -1,21 +1,24 @@
 import { prisma } from "@/lib/prisma";
 import { calculateWaterBill } from "@/lib/billing/calculator";
 
-export async function previewInvoice(meterId: string, currentReading: number) {
+export async function previewInvoice(meterId: string, currentReading: number, tenantId?: string) {
   const meter = await prisma.meter.findUnique({
     where: { id: meterId },
     include: { subscriber: true },
   });
 
   if (!meter) throw new Error("Medidor no encontrado");
+  if (tenantId && meter.tenantId !== tenantId) throw new Error("Medidor no pertenece a esta ASADA");
 
   const lastReading = await prisma.reading.findFirst({
     where: { meterId },
     orderBy: { date: "desc" },
   });
 
-  const consumption =
-    currentReading - (lastReading?.value.toNumber() || 0);
+  const prevValue = lastReading?.value.toNumber() ?? 0;
+  if (!lastReading && currentReading > 500) throw new Error(`Primera lectura ${currentReading} m³ excesiva - verifique (consumo sería ${currentReading} m³)`);
+  const consumption = currentReading - prevValue;
+  if (consumption > 100) throw new Error(`Consumo ${consumption} m³ atípico - verifique lectura (promedio ASADA 15-25 m³)`);
 
   if (consumption < 0) {
     throw new Error(

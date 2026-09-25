@@ -70,7 +70,7 @@ export default async function SuscripcionPage() {
           </div>
           <div className="flex gap-2 mt-3">
             <a href={`https://wa.me/506${PLATFORM.sinpeNumero}?text=Hola%20pago%20suscripcion%20${tenant?.slug}%20${periodo}%20${formatCRC(calc.montoCRC)}`} target="_blank" className="btn-primary flex-1 flex items-center justify-center gap-2"><CreditCard className="w-4 h-4" />Enviar comprobante por WhatsApp</a>
-            <a href="/api/saas/invoice?periodo=2026-03" className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300">Descargar factura SaaS</a>
+            <a href={`/api/saas/invoice?periodo=${periodo}`} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300">Descargar factura SaaS</a>
           </div>
           {calc.tier.perAbonado && <p className="text-xs text-muted mt-2">Enterprise: +{formatCRC(calc.tier.perAbonado)} por abonado extra sobre 1000.</p>}
         </div>

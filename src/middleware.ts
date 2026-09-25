@@ -121,12 +121,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // RBAC: Junta = FIELD_STAFF solo lectura de reportes, no billing/payments mutaciones
   const role = decoded.role as string;
   const isMutating = request.method !== "GET" && request.method !== "HEAD";
-  const restrictedForField = ["/billing", "/bulk", "/api/billing", "/api/payments"];
-  if (role === "FIELD_STAFF" && isMutating && restrictedForField.some(p => pathname.startsWith(p))) {
+  const fieldBlocked = ["/billing", "/bulk", "/api/billing", "/api/payments", "/api/tenant/config", "/api/banks", "/api/notifications/send", "/api/saas", "/suscripcion", "/configuracion", "/admin", "/caja", "/conciliacion"];
+  if (role === "FIELD_STAFF" && isMutating && fieldBlocked.some(p => pathname.startsWith(p))) {
     return NextResponse.json({ error: "FIELD_STAFF solo lectura y captura de lecturas" }, { status: 403 });
+  }
+  if (role === "FIELD_STAFF" && pathname.startsWith("/api/readings") && request.method === "POST") {
+    // Permitido: lecturas
+  } else if (role === "FIELD_STAFF" && ["/configuracion", "/admin", "/suscripcion", "/caja"].some(p => pathname.startsWith(p))) {
+    return NextResponse.redirect(new URL("/lecturas", request.url));
+  }
+  // Bloqueo si tenant suspendido
+  if (decoded.tenantStatus === "SUSPENDED" && !pathname.startsWith("/suscripcion") && !pathname.startsWith("/api/saas")) {
+    return NextResponse.redirect(new URL("/suscripcion", request.url));
   }
 
   const requestHeaders = new Headers(request.headers);

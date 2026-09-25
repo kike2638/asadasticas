@@ -5,11 +5,10 @@ import Link from "next/link";
 import {
   Users,
   Plus,
-  Search,
   Droplets,
-  MoreVertical,
   Eye,
 } from "lucide-react";
+import SubscribersClient from "./subscribers-client";
 
 export default async function SubscribersPage() {
   const session = await getServerUser();
@@ -48,16 +47,8 @@ export default async function SubscribersPage() {
         </Link>
       </div>
 
-      {/* Search Bar */}
-      <div className="glass rounded-2xl p-4 animate-fade-in" style={{ animationDelay: "100ms" }}>
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar por nombre o NIS..."
-            className="input-modern pl-12"
-          />
-        </div>
+      <div className="animate-fade-in" style={{ animationDelay: "100ms" }}>
+        <SubscribersClient subscribers={subscribers} />
       </div>
 
       {/* Stats Cards */}

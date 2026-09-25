@@ -110,7 +110,7 @@ export default function BillingPage() {
             {error && <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl flex gap-2"><AlertCircle className="w-5 h-5 flex-shrink-0"/>{error}</div>}
             <button onClick={handlePreview} disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">{loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <><Calculator className="w-5 h-5"/>Calcular con ARESEP</>}</button>
             <div className="flex gap-2">
-              <a href="/lecturas" className="flex-1 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-center text-sm text-gray-300 flex items-center justify-center gap-2"><Layers className="w-4 h-4"/>Facturación masiva</a>
+              <a href="/bulk" className="flex-1 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-center text-sm text-gray-300 flex items-center justify-center gap-2"><Layers className="w-4 h-4"/>Facturación masiva</a>
               <a href="/payments" className="flex-1 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-center text-sm text-gray-300 flex items-center justify-center gap-2"><Zap className="w-4 h-4"/>Caja</a>
             </div>
           </div>

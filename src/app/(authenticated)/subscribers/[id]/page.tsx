@@ -78,10 +78,11 @@ export default async function SubscriberDetail({ params }: { params: { id: strin
       <div className="glass rounded-2xl p-6">
         <h3 className="font-semibold text-white mb-3 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-cyan-400" /> Acciones</h3>
         <div className="flex flex-wrap gap-2">
-          <a href={`/billing?nis=${sub.nis}`} className="px-4 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-sm">Facturar lectura</a>
-          <a href={`/payments?nis=${sub.nis}`} className="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-sm">Registrar pago</a>
+          <Link href={`/billing?nis=${sub.nis}`} className="px-4 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-sm">Facturar lectura</Link>
+          <Link href={`/payments?nis=${sub.nis}`} className="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-sm">Registrar pago</Link>
           <a href={`https://wa.me/506${(sub.telefono ?? "").replace(/\D/g, "").slice(-8)}?text=Hola%20${encodeURIComponent(sub.name)}%20tu%20deuda%20es%20${formatCurrency(deuda)}%20SINPE%20${cfg?.sinpeNumero ?? ""}`} target="_blank" className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300">WhatsApp cobro</a>
-          <span className="ml-auto text-xs text-muted self-center">Convenios y cortes: desde morosidad</span>
+          <Link href="/notificaciones" className="px-4 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-sm">Recordatorio</Link>
+          <Link href="/conciliacion" className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300">Conciliar</Link>
         </div>
       </div>
     </div>

@@ -40,7 +40,7 @@ export default function NotificacionesClient({ sinpe, logs }: { sinpe: string | 
 
         <div className="grid md:grid-cols-4 gap-3 mt-4">
           <div className="rounded-xl bg-white/[0.04] p-3 text-center"><p className="text-xl font-bold text-white">{queue?.total ?? "—"}</p><p className="text-xs text-muted">En cola hoy</p></div>
-          <div className="rounded-xl bg-white/[0.04] p-3 text-center"><p className="text-xl font-bold text-cyan-400">{queue?.byTipo?.RECORDATORIO_5 ?? 0 + (queue?.byTipo?.VENCIMIENTO_HOY ?? 0)}</p><p className="text-xs text-muted">Por vencer</p></div>
+          <div className="rounded-xl bg-white/[0.04] p-3 text-center"><p className="text-xl font-bold text-cyan-400">{(queue?.byTipo?.RECORDATORIO_5 ?? 0) + (queue?.byTipo?.VENCIMIENTO_HOY ?? 0)}</p><p className="text-xs text-muted">Por vencer</p></div>
           <div className="rounded-xl bg-white/[0.04] p-3 text-center"><p className="text-xl font-bold text-amber-400">{(queue?.byTipo?.MOROSO_7 ?? 0) + (queue?.byTipo?.MOROSO_15 ?? 0) + (queue?.byTipo?.MOROSO_30 ?? 0)}</p><p className="text-xs text-muted">Morosos</p></div>
           <div className="rounded-xl bg-white/[0.04] p-3 text-center"><p className="text-xl font-bold text-red-400">{queue?.byTipo?.CORTE_AVISO ?? 0}</p><p className="text-xs text-muted">Aviso corte</p></div>
         </div>

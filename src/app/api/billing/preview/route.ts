@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await previewInvoice(meterId, currentReading);
+    const result = await previewInvoice(meterId, currentReading, tenantId);
     return NextResponse.json(result);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });

@@ -48,26 +48,19 @@ export async function POST(request: Request) {
 
   const matches = matchTransactions(parsed.transactions, pendingInvoices, pendingSubs);
 
-  if (previewOnly) {
-    return NextResponse.json({
-      banco: parsed.banco,
-      headers: parsed.headers,
-      warnings: parsed.warnings,
-      count: parsed.count,
-      pendingInvoices: pendingInvoices.length,
-      matches: matches.slice(0, 100),
-      summary: {
-        auto: matches.filter(m => m.suggestedAction === "AUTO_MATCH").length,
-        review: matches.filter(m => m.suggestedAction === "REVIEW").length,
-        ignore: matches.filter(m => m.suggestedAction === "IGNORE").length,
-        ingresos: parsed.transactions.filter(t => t.monto > 0).length,
-        totalIngresos: parsed.transactions.filter(t => t.monto > 0).reduce((a, t) => a + t.monto, 0),
-      },
-    });
-  }
-
-  // Ejecución real: crear pagos para los AUTO_MATCH (con referencia del banco)
-  const body = await request.formData(); // ya leída, pero usamos matches previos
-  // El cliente debe llamar a /api/banks/execute con índices confirmados
-  return NextResponse.json({ preview: true, banco: parsed.banco, matches, warnings: parsed.warnings });
+  return NextResponse.json({
+    banco: parsed.banco,
+    headers: parsed.headers,
+    warnings: parsed.warnings,
+    count: parsed.count,
+    pendingInvoices: pendingInvoices.length,
+    matches: matches.slice(0, 100),
+    summary: {
+      auto: matches.filter(m => m.suggestedAction === "AUTO_MATCH").length,
+      review: matches.filter(m => m.suggestedAction === "REVIEW").length,
+      ignore: matches.filter(m => m.suggestedAction === "IGNORE").length,
+      ingresos: parsed.transactions.filter(t => t.monto > 0).length,
+      totalIngresos: parsed.transactions.filter(t => t.monto > 0).reduce((a, t) => a + t.monto, 0),
+    },
+  });
 }
