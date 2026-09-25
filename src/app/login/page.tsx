@@ -63,7 +63,7 @@ function LoginForm() {
             ASADAS ERP
           </h1>
           <p className="text-sm text-secondary mt-2">
-            Plataforma de gestión de agua potable
+            Acceso restringido — solo personal autorizado
           </p>
         </div>
 
@@ -131,15 +131,6 @@ function LoginForm() {
               )}
             </button>
           </form>
-
-          <div className="mt-6 pt-5 border-t border-[rgba(96,165,250,0.12)]">
-            <p className="text-xs text-muted text-center leading-relaxed">
-              Credenciales de prueba:
-              <br />
-              <span className="text-secondary">admin@asadas-erp.cr</span> /{" "}
-              <span className="text-secondary">admin123</span>
-            </p>
-          </div>
         </div>
 
         <p className="text-center text-xs text-muted mt-8">
