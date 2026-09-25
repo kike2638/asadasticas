@@ -31,9 +31,17 @@ export default async function SuscripcionPage() {
           <h1 className="page-title">Suscripción</h1>
           <p className="page-subtitle">{tenant?.name} • {count} abonados • {calc.tier.label}</p>
         </div>
-        {isTrial && <span className="px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold border border-amber-500/20">TRIAL hasta {trialEnds ?? "—"}</span>}
-        {!isTrial && <span className="px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold border border-emerald-500/20">ACTIVA</span>}
+        {tenant?.status === "SUSPENDED" && <span className="px-3 py-1.5 rounded-full bg-red-500/15 text-red-400 text-xs font-bold border border-red-500/20">SUSPENDIDA — {isTrial ? "trial vencido" : "pago pendiente"}</span>}
+        {tenant?.status !== "SUSPENDED" && isTrial && <span className="px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold border border-amber-500/20">TRIAL hasta {trialEnds ?? "—"}</span>}
+        {tenant?.status !== "SUSPENDED" && !isTrial && <span className="px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold border border-emerald-500/20">ACTIVA</span>}
       </div>
+
+      {tenant?.status === "SUSPENDED" && (
+        <div className="glass rounded-2xl p-5 border border-red-500/30 bg-red-500/[0.06]">
+          <p className="text-white font-semibold flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-400" /> Tu periodo de prueba o suscripción venció</p>
+          <p className="text-sm text-muted mt-1">El panel queda en solo lectura hasta que se valide tu pago. Realiza el SINPE abajo, envía el comprobante y el acceso se restablece.</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 glass rounded-2xl p-6 border border-cyan-500/20">

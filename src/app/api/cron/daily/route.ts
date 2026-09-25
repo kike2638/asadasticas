@@ -13,7 +13,21 @@ export async function GET(request: Request) {
   const tenants = await prisma.tenant.findMany({ where: { status: "ACTIVE" }, select: { id: true, slug: true } });
   const results: any[] = [];
 
+  // SaaS: trials vencidos pasan a SUSPENDED (reactivacion al validar SINPE como PAID)
+  const trialsVencidos = await prisma.tenant.findMany({
+    where: { status: "ACTIVE", subscriptionStatus: "TRIAL", trialEndsAt: { lt: new Date() } },
+    select: { id: true, slug: true },
+  });
+  for (const t of trialsVencidos) {
+    await prisma.tenant.update({ where: { id: t.id }, data: { status: "SUSPENDED", subscriptionStatus: "PAST_DUE" } });
+  }
+  const suspendidos = new Set(trialsVencidos.map(t => t.id));
+
   for (const t of tenants) {
+    if (suspendidos.has(t.id)) {
+      results.push({ tenant: t.slug, accion: "TRIAL_VENCIDO_SUSPENDIDO" });
+      continue;
+    }
     const pendientes = await reintentosPendientes(t.id);
     const notif = await notificarVencimientos(t.id).catch(() => ({ total: 0, enviados: 0 }));
     const morosos30 = await prisma.invoice.count({ where: { tenantId: t.id, status: { in: ["PENDING", "PARTIAL"] }, fechaVencimiento: { lt: new Date(Date.now() - 30 * 86400000) } } });
@@ -49,7 +63,7 @@ export async function GET(request: Request) {
     results.push({ tenant: t.slug, haciendaPendientes: pendientes, whatsappEnviados: (notif as any).enviados, recordatorios: notifRecordatorios, morosos30, morosos60: morosos60.length, saas: { periodo, abonados: count, monto: calc.montoCRC } });
   }
 
-  return NextResponse.json({ success: true, fecha: new Date().toISOString().slice(0, 10), tenants: results.length, detalle: results });
+  return NextResponse.json({ success: true, fecha: new Date().toISOString().slice(0, 10), tenants: results.length, trialsSuspendidos: trialsVencidos.length, detalle: results });
 }
 
 export async function POST(req: Request) { return GET(req); }

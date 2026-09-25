@@ -16,9 +16,9 @@ export async function POST(request: Request) {
 
   // Activa tenant si pagó
   if (status === "PAID") {
-    await prisma.tenant.update({ where: { id: updated.tenantId }, data: { subscriptionStatus: "ACTIVE" } });
+    await prisma.tenant.update({ where: { id: updated.tenantId }, data: { subscriptionStatus: "ACTIVE", status: "ACTIVE" } });
   } else if (status === "OVERDUE") {
-    await prisma.tenant.update({ where: { id: updated.tenantId }, data: { subscriptionStatus: "PAST_DUE" } });
+    await prisma.tenant.update({ where: { id: updated.tenantId }, data: { subscriptionStatus: "PAST_DUE", status: "SUSPENDED" } });
   }
 
   return NextResponse.json({ success: true, subscription: updated });

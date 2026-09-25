@@ -45,6 +45,7 @@ export async function POST(request: Request) {
         name: user.name,
         tenantId: user.tenantId,
         tenantSlug: user.tenant.slug,
+        tenantStatus: user.tenant.status,
         role: user.role,
       },
       SECRET,
