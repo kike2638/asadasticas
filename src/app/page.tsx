@@ -27,9 +27,9 @@ export default function Home() {
           Lecturas offline con GPS, facturación ARESEP con tiquete electrónico 04, SINPE FIFO y WhatsApp automático. De 3 días de facturación a 20 minutos.
         </p>
         <div className="flex flex-wrap gap-3 mt-8">
-          <Link href="/portal" className="px-6 py-3 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 text-[#042635] font-bold">Portal abonado — consulta tu deuda</Link>
-          <Link href="/onboarding" className="px-6 py-3 rounded-xl bg-white text-[#050a18] font-semibold">Registrar mi ASADA</Link>
-          <Link href="/dashboard" className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white">Ver demo</Link>
+          <Link href="#demo" className="px-6 py-3 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 text-[#042635] font-bold">Solicitar demo → 8760-7243</Link>
+          <Link href="/portal" className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white">Portal abonado</Link>
+          <Link href="/login" className="px-6 py-3 rounded-xl bg-white text-[#050a18] font-semibold">Ingresar ASADA</Link>
         </div>
         <div className="flex flex-wrap gap-6 mt-8 text-sm text-gray-400">
           <span className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />Offline-first campo</span>
@@ -55,15 +55,38 @@ export default function Home() {
         ))}
       </section>
 
+      <section id="demo" className="max-w-6xl mx-auto px-6 pb-10">
+        <div className="glass rounded-2xl p-6 grid md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="text-xl font-bold text-white">Solicita demo en 30 segundos</h3>
+            <p className="text-sm text-muted mt-2">Te responde directo a tu WhatsApp <span className="text-white font-mono">8760-7243</span> — AquaLectura CR. Sin compromiso, vemos tu Excel y SINPE.</p>
+            <ul className="text-sm text-gray-400 mt-4 space-y-1">
+              <li>✓ Migración Excel en 1 día</li>
+              <li>✓ SINPE y logo de tu ASADA</li>
+              <li>✓ Prueba con tus 20 abonados</li>
+            </ul>
+          </div>
+          <form onSubmit={e => { e.preventDefault(); const f = new FormData(e.currentTarget as HTMLFormElement); const n = f.get("asada"), c = f.get("contacto"), a = f.get("abonados"); window.open(`https://wa.me/50687607243?text=${encodeURIComponent(`Hola AquaLectura, soy ${n} (${c}) con ${a} abonados. Quiero demo`)}`, "_blank"); }} className="space-y-3">
+            <input name="asada" required placeholder="ASADA San Rafael" className="input-modern w-full" />
+            <div className="grid grid-cols-2 gap-3">
+              <input name="contacto" required placeholder="WhatsApp 8888-0000" className="input-modern" />
+              <input name="abonados" required placeholder="Abonados ej: 350" className="input-modern" />
+            </div>
+            <button type="submit" className="btn-primary w-full">Enviar por WhatsApp → 8760-7243</button>
+            <p className="text-xs text-muted text-center">o escribe directo a <a href="https://wa.me/50687607243" className="text-cyan-400 underline">wa.me/50687607243</a></p>
+          </form>
+        </div>
+      </section>
+
       <section className="max-w-6xl mx-auto px-6 pb-16">
         <div className="glass rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <p className="font-semibold text-white">¿ASADA con 300-2000 abonados?</p>
-            <p className="text-sm text-gray-400">Migra tu Excel en 1 día. Soporte en español, de ASADA a ASADA.</p>
+            <p className="font-semibold text-white">¿Lista para cobrar a tiempo?</p>
+            <p className="text-sm text-gray-400">Empieza gratis, paga por uso. Login solo para clientes.</p>
           </div>
-          <Link href="/onboarding" className="px-6 py-3 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 text-[#042635] font-bold shrink-0">Solicitar migración</Link>
+          <Link href="/login" className="px-6 py-3 rounded-xl bg-white text-[#050a18] font-semibold shrink-0">Ingresar ASADA →</Link>
         </div>
-        <p className="text-center text-xs text-gray-500 mt-6">Hecho con 💧 en Costa Rica • Cumple AyA • ARESEP 2026 • Hacienda v4.3</p>
+        <p className="text-center text-xs text-gray-500 mt-6">Hecho con 💧 en Costa Rica • Cumple AyA • ARESEP 2026 • Hacienda v4.3 • Superadmin 8760-7243</p>
       </section>
     </div>
   );
