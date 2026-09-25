@@ -25,8 +25,28 @@ const navMain = [
     items: [
       { href: "/subscribers", label: "Abonados", icon: Users },
       { href: "/billing", label: "Facturación", icon: FileText },
-      { href: "/payments", label: "Pagos", icon: CreditCard },
-      { href: "/lecturas", label: "Lecturas", icon: Gauge },
+      { href: "/bulk", label: "Fact. masiva", icon: FileText },
+      { href: "/payments", label: "Pagos / Caja", icon: CreditCard },
+      { href: "/lecturas", label: "Lecturas campo", icon: Gauge },
+    ],
+  },
+  {
+    label: "Reportes AyA",
+    items: [
+      { href: "/morosidad", label: "Morosidad", icon: Gauge },
+      { href: "/caja", label: "Arqueo", icon: CreditCard },
+      { href: "/reportes", label: "Reportes", icon: FileText },
+      { href: "/junta", label: "Junta Directiva", icon: FileText },
+    ],
+  },
+  {
+    label: "Plataforma",
+    items: [
+      { href: "/mapa", label: "Mapa abonados", icon: Gauge },
+      { href: "/suscripcion", label: "Suscripción", icon: CreditCard },
+      { href: "/configuracion", label: "Configuración", icon: FileText },
+      { href: "/conciliacion", label: "Conciliación", icon: CreditCard },
+      { href: "/notificaciones", label: "Notificaciones", icon: FileText },
     ],
   },
 ];
@@ -34,6 +54,11 @@ const navMain = [
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [tenantInfo, setTenantInfo] = useState<{ name: string; logoUrl: string | null; sinpe: string | null } | null>(null);
+  // Carga logo+SINPE individual por ASADA
+  useState(() => {
+    if (typeof window !== "undefined") fetch("/api/tenant/info").then(r => r.json()).then(d => setTenantInfo({ name: d.tenant?.name ?? "ASADAS", logoUrl: d.tenant?.logoUrl ?? null, sinpe: d.config?.sinpeNumero ?? null })).catch(() => {});
+  });
 
   const handleLogout = async () => {
     try {
@@ -56,20 +81,13 @@ export function Sidebar() {
         }`}
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="relative w-10 h-10 rounded-2xl bg-[var(--brand-grad)] flex items-center justify-center shadow-[0_6px_24px_rgba(34,211,238,0.35)] shrink-0">
-            <Droplets className="w-5 h-5 text-[#042635]" />
+          <div className="relative w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-[0_6px_24px_rgba(34,211,238,0.35)] shrink-0 overflow-hidden">
+            {tenantInfo?.logoUrl ? <img src={tenantInfo.logoUrl} alt="Logo" className="w-full h-full object-contain p-1" /> : <Droplets className="w-5 h-5 text-[#042635]" />}
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-[15px] font-bold tracking-tight leading-none">
-                ASADAS
-                <span className="ml-1.5 text-[10px] font-semibold text-[var(--brand)] align-super">
-                  v2
-                </span>
-              </p>
-              <p className="text-[11px] text-muted mt-1.5 leading-none tracking-wide">
-                Gestión de Agua
-              </p>
+              <p className="text-[13px] font-bold tracking-tight leading-none truncate">{tenantInfo?.name ?? "ASADAS"}<span className="ml-1.5 text-[10px] font-semibold text-[var(--brand)] align-super">v2</span></p>
+              <p className="text-[11px] text-muted mt-1 leading-none truncate">{tenantInfo?.sinpe ? `SINPE ${tenantInfo.sinpe}` : "Gestión de Agua"}</p>
             </div>
           )}
         </div>

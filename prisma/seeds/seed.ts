@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Iniciando seed de plataforma...');
 
-  // 1. Crear el Tenant de la Plataforma (Dueño del SaaS)
+  // 1. Crear el Tenant de la Plataforma (Dueño del SaaS) - SINPE superadmin 87607243
   const platformTenant = await prisma.tenant.upsert({
     where: { slug: 'plataforma-admin' },
     update: {},
@@ -19,6 +19,24 @@ async function main() {
       status: 'ACTIVE',
     },
   });
+  // Config plataforma con tu SINPE real
+  const existingPlatCfg = await prisma.tenantConfig.findUnique({ where: { tenantId: platformTenant.id } });
+  if (!existingPlatCfg) {
+    await prisma.tenantConfig.create({
+      data: {
+        tenantId: platformTenant.id,
+        haciendaUser: 'admin@asadas-erp.cr',
+        haciendaPassword: 'encrypted',
+        llaveCryptBase64: 'placeholder',
+        llavePin: 'encrypted',
+        sinpeNumero: '87607243',
+        sinpeNombre: 'AquaLectura CR - Superadmin',
+        sinpeBanco: 'BNCR',
+      },
+    });
+  } else if (!existingPlatCfg.sinpeNumero) {
+    await prisma.tenantConfig.update({ where: { tenantId: platformTenant.id }, data: { sinpeNumero: '87607243', sinpeNombre: 'AquaLectura CR - Superadmin', sinpeBanco: 'BNCR' } });
+  }
 
   // 2. Crear usuario Super Admin
   const hashedPassword = await bcrypt.hash('admin123', 12);
@@ -35,30 +53,40 @@ async function main() {
     },
   });
 
-  // 3. Crear una ASADA de prueba inicial
+  // 3. Crear una ASADA de prueba inicial (con cédula jurídica real formato)
   const asadaPrueba = await prisma.tenant.upsert({
     where: { slug: 'asada-ejemplo' },
-    update: {},
+    update: { cedulaJuridica: '300208765432' },
     create: {
       id: uuidv4(),
       slug: 'asada-ejemplo',
       name: 'ASADA San Rafael',
+      cedulaJuridica: '300208765432',
       plan: 'BASIC',
       status: 'ACTIVE',
     },
   });
 
-  // 4. Crear config de Hacienda para la ASADA de prueba
+  // 4. Crear config de Hacienda para la ASADA de prueba (tiquete electrónico es el estándar ASADA)
   await prisma.tenantConfig.upsert({
     where: { tenantId: asadaPrueba.id },
-    update: {},
+    update: { sinpeNumero: '88881234', sinpeNombre: 'ASADA San Rafael', sinpeBanco: 'BNCR' },
     create: {
       tenantId: asadaPrueba.id,
       haciendaUser: 'test@hacienda.go.cr',
       haciendaPassword: 'encrypted-placeholder',
       llaveCryptBase64: 'placeholder-base64-key',
       llavePin: 'encrypted-pin-placeholder',
-      consecutive: 1,
+      consecutivoFE: 1,
+      consecutivoTE: 1,
+      sucursal: '001',
+      terminal: '00001',
+      tprhDomiciliar: 1200,
+      tprhComercial: 1800,
+      hidrantesMensual: 750,
+      sinpeNumero: '88881234',
+      sinpeNombre: 'ASADA San Rafael',
+      sinpeBanco: 'BNCR',
     },
   });
 
@@ -77,13 +105,13 @@ async function main() {
     },
   });
 
-  // 6. Crear abonados de prueba
+  // 6. Crear abonados de prueba con padrón AyA completo
   const subscribersData = [
-    { nis: '001', name: 'Juan Carlos Pérez', category: 'DOMICILIAR' as const },
-    { nis: '002', name: 'María López Solís', category: 'DOMICILIAR' as const },
-    { nis: '003', name: 'Tienda Don Pedro', category: 'COMERCIAL' as const },
-    { nis: '004', name: 'Restaurante La Esquina', category: 'COMERCIAL' as const },
-    { nis: '005', name: 'Casa Comunal San Rafael', category: 'PUBLICO' as const },
+    { nis: '001', name: 'Juan Carlos Pérez', category: 'DOMICILIAR' as const, identificacion: '102340567', email: 'juan.perez@example.cr', telefono: '88880001', direccion: 'San Rafael centro, 100m este plaza', rutaLectura: 'RUTA-01', lat: 10.015, lng: -84.215 },
+    { nis: '002', name: 'María López Solís', category: 'DOMICILIAR' as const, identificacion: '203450678', email: 'maria.lopez@example.cr', telefono: '88880002', direccion: 'Calle principal, casa 15', rutaLectura: 'RUTA-01', lat: 10.018, lng: -84.218 },
+    { nis: '003', name: 'Tienda Don Pedro', category: 'COMERCIAL' as const, identificacion: '3101123456', email: 'tienda@example.cr', telefono: '88880003', direccion: 'Frente al parque', rutaLectura: 'RUTA-02', lat: 10.012, lng: -84.212 },
+    { nis: '004', name: 'Restaurante La Esquina', category: 'COMERCIAL' as const, identificacion: '3102234567', email: 'restaurante@example.cr', telefono: '88880004', rutaLectura: 'RUTA-02', lat: 10.020, lng: -84.220 },
+    { nis: '005', name: 'Casa Comunal San Rafael', category: 'PUBLICO' as const, identificacion: '300208765432', email: 'comunal@example.cr', rutaLectura: 'RUTA-01', lat: 10.016, lng: -84.216 },
   ];
 
   const createdSubscribers = [];
@@ -98,6 +126,15 @@ async function main() {
         nis: sub.nis,
         name: sub.name,
         category: sub.category,
+        tipoIdentificacion: sub.identificacion?.length === 10 ? "02" : "01",
+        identificacion: sub.identificacion,
+        email: sub.email,
+        telefono: sub.telefono,
+        direccion: (sub as any).direccion,
+        rutaLectura: (sub as any).rutaLectura,
+        lat: (sub as any).lat,
+        lng: (sub as any).lng,
+        status: "ACTIVO",
       },
     });
     createdSubscribers.push(created);
@@ -115,15 +152,17 @@ async function main() {
     });
   }
 
-  // 8. Crear tarifa activa con bloques progresivos
+  // 8. Crear tarifa activa con bloques progresivos ARESEP + TPRH + Hidrantes
   const tariff = await prisma.tariff.create({
     data: {
       id: uuidv4(),
       tenantId: asadaPrueba.id,
       category: 'DOMICILIAR',
-      name: 'Tarifa Residencial 2026',
+      name: 'Tarifa Residencial ARESEP 2026',
       baseCharge: 3500,
       baseCubicMeters: 15,
+      tprh: 1200,
+      hidrantes: 750,
       isActive: true,
     },
   });
@@ -144,9 +183,11 @@ async function main() {
       id: uuidv4(),
       tenantId: asadaPrueba.id,
       category: 'COMERCIAL',
-      name: 'Tarifa Comercial 2026',
+      name: 'Tarifa Comercial ARESEP 2026',
       baseCharge: 8000,
       baseCubicMeters: 10,
+      tprh: 1800,
+      hidrantes: 750,
       isActive: true,
     },
   });

@@ -7,6 +7,7 @@ import {
   Calendar,
   ArrowUpRight,
 } from "lucide-react";
+import LecturasClient from "./client";
 
 export default async function LecturasPage() {
   const session = await getServerUser();
@@ -31,8 +32,10 @@ export default async function LecturasPage() {
       <div className="animate-fade-in">
         <p className="section-label mb-1.5">Operaciones</p>
         <h1 className="page-title mb-1">Lecturas</h1>
-        <p className="page-subtitle">{readings.length} lecturas recientes</p>
+        <p className="page-subtitle">{readings.length} lecturas recientes • modo offline + GPS + foto</p>
       </div>
+
+      <LecturasClient tenantId={tenantId} lectorId={session.user.id} />
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in" style={{ animationDelay: "100ms" }}>
@@ -89,10 +92,12 @@ export default async function LecturasPage() {
             <table className="table-modern">
               <thead>
                 <tr>
-                  <th>Fecha</th>
+                    <th>Fecha</th>
                   <th>Abonado</th>
                   <th>Medidor</th>
                   <th>Lectura</th>
+                  <th>Estado</th>
+                  <th>GPS</th>
                 </tr>
               </thead>
               <tbody>
@@ -132,6 +137,14 @@ export default async function LecturasPage() {
                         </span>
                         <span className="text-sm text-gray-400">m³</span>
                       </div>
+                    </td>
+                    <td>
+                      <span className={`badge text-[11px] ${(reading as any).anomalia !== "NONE" ? "badge-orange" : "badge-green"}`}>
+                        {(reading as any).anomalia ?? "OK"}
+                      </span>
+                    </td>
+                    <td className="text-xs text-gray-400 font-mono">
+                      {(reading as any).gpsLat ? `${Number((reading as any).gpsLat).toFixed(3)}, ${Number((reading as any).gpsLng).toFixed(3)}` : "—"}
                     </td>
                   </tr>
                 ))}

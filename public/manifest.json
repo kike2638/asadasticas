@@ -1,0 +1,13 @@
+{
+  "name": "AquaLectura CR - ASADA",
+  "short_name": "AquaLectura",
+  "description": "ERP offline-first para ASADAS de Costa Rica - lecturas, facturación ARESEP, tiquete electrónico",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#050a18",
+  "theme_color": "#22d3ee",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { calculateWaterBill } from "@/lib/billing/calculator";
 
 export async function previewInvoice(meterId: string, currentReading: number) {
   const meter = await prisma.meter.findUnique({
@@ -35,45 +36,28 @@ export async function previewInvoice(meterId: string, currentReading: number) {
 
   if (!tariff) throw new Error("No hay tarifa activa configurada");
 
-  // Calculate bill
-  const baseCharge = tariff.baseCharge.toNumber();
   const blocks = tariff.blocks
     .sort((a, b) => a.min - b.min)
-    .map((b) => ({
-      min: b.min,
-      max: b.max,
-      pricePerUnit: b.pricePerUnit.toNumber(),
-    }));
+    .map((b) => ({ min: b.min, max: b.max, pricePerUnit: b.pricePerUnit.toNumber() }));
 
-  let remaining = Math.max(0, consumption - tariff.baseCubicMeters);
-  let variableCharge = 0;
-  const breakdown: { block: string; m3: number; cost: number }[] = [];
-
-  for (const block of blocks) {
-    if (remaining <= 0) break;
-    const blockRange = block.max - block.min + 1;
-    const m3InBlock = Math.min(remaining, blockRange);
-    const cost = m3InBlock * block.pricePerUnit;
-    variableCharge += cost;
-    breakdown.push({
-      block: `${block.min}-${block.max}`,
-      m3: m3InBlock,
-      cost,
-    });
-    remaining -= m3InBlock;
-  }
-
-  const total = baseCharge + variableCharge;
+  const bill = calculateWaterBill(
+    consumption,
+    tariff.baseCharge.toNumber(),
+    blocks,
+    tariff.baseCubicMeters,
+    {
+      cargoFijoAcueducto: tariff.baseCharge.toNumber(),
+      tprh: (tariff as any).tprh?.toNumber?.() ?? 0,
+      hidrantes: (tariff as any).hidrantes?.toNumber?.() ?? 0,
+    },
+    meter.subscriber.category
+  );
 
   return {
     consumption,
-    bill: {
-      baseCharge,
-      variableCharge,
-      additionalCharges: 0,
-      total,
-      breakdown,
-    },
+    bill,
     subscriberName: meter.subscriber.name,
+    subscriberCategory: meter.subscriber.category,
+    tariffName: tariff.name,
   };
 }

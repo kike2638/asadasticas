@@ -10,12 +10,8 @@ export async function markInvoiceAsPaid(invoiceId: string, paymentMethod: string
     const updatedInvoice = await prisma.invoice.update({
       where: { id: invoiceId },
       data: {
-        status: 'PAID', // Asegúrate de añadir status a tu modelo Invoice
-        paymentDetails: JSON.stringify({
-          method: paymentMethod,
-          reference: referenceNumber,
-          paidAt: new Date(),
-        }),
+        status: 'PAID',
+        respuestaHacienda: { legacyPayment: { method: paymentMethod, reference: referenceNumber, paidAt: new Date() } } as any,
       },
     });
 

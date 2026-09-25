@@ -79,9 +79,23 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public routes
+  // Rate-limit simple en memoria (Edge)
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  // @ts-ignore global
+  const g: any = globalThis as any;
+  g._rl = g._rl ?? new Map<string, { n: number; t: number }>();
+  const now = Date.now();
+  const cur = g._rl.get(ip) ?? { n: 0, t: now };
+  if (now - cur.t > 60_000) { cur.n = 0; cur.t = now; }
+  cur.n++; g._rl.set(ip, cur);
+  if (cur.n > 120) return new NextResponse("Too Many Requests", { status: 429 });
+
   if (
     pathname.startsWith('/login') ||
+    pathname.startsWith('/portal') ||
+    pathname.startsWith('/api/portal') ||
     pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/cron') ||
     pathname.startsWith('/api/onboarding') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon')
@@ -105,6 +119,14 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // RBAC: Junta = FIELD_STAFF solo lectura de reportes, no billing/payments mutaciones
+  const role = decoded.role as string;
+  const isMutating = request.method !== "GET" && request.method !== "HEAD";
+  const restrictedForField = ["/billing", "/bulk", "/api/billing", "/api/payments"];
+  if (role === "FIELD_STAFF" && isMutating && restrictedForField.some(p => pathname.startsWith(p))) {
+    return NextResponse.json({ error: "FIELD_STAFF solo lectura y captura de lecturas" }, { status: 403 });
   }
 
   const requestHeaders = new Headers(request.headers);

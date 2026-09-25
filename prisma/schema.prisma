@@ -30,6 +30,7 @@ enum TenantPlan {
 enum InvoiceStatus {
   PENDING
   PAID
+  PARTIAL
   REJECTED
   CANCELLED
 }
@@ -60,13 +61,45 @@ enum SubscriberCategory {
   PUBLICO
 }
 
+enum SubscriberStatus {
+  ACTIVO
+  SUSPENDIDO
+  MOROSO
+  CORTE
+  RETIRADO
+}
+
+enum ReadingAnomaly {
+  NONE
+  LECTURA_INFERIOR
+  CONSUMO_CERO
+  CONSUMO_EXCESIVO
+  PICO_CONSUMO
+  MEDIDOR_DANADO
+  FUGA_VISIBLE
+}
+
+enum TipoComprobante {
+  FACTURA_ELECTRONICA // 01
+  TIQUETE_ELECTRONICO // 04 - mayoría ASADAS
+  NOTA_CREDITO // 03
+  NOTA_DEBITO // 02
+}
+
 model Tenant {
   id           String       @id @default(uuid())
   slug         String       @unique
   name         String
+  cedulaJuridica String?   // ej 3-002-XXXXXX para Hacienda
+  logoUrl       String?    // base64 o URL S3 - logo individual por ASADA
+  telefono      String?    // tel ASADA para facturas
+  email         String?    // email ASADA
+  direccion     String?    // dirección física
   plan         TenantPlan   @default(BASIC)
   status       TenantStatus @default(ACTIVE)
   createdAt    DateTime     @default(now())
+  trialEndsAt  DateTime?
+  subscriptionStatus String @default("TRIAL") // TRIAL, ACTIVE, PAST_DUE, CANCELLED
 
   users        User[]
   subscribers  Subscriber[]
@@ -75,6 +108,10 @@ model Tenant {
   invoices     Invoice[]
   payments     Payment[]
   tariffs      Tariff[]
+  cycles       BillingCycle[]
+  cashClosings CashClosing[]
+  subscriptions SaaSSubscription[]
+  notifications NotificationLog[]
   config       TenantConfig?
 }
 
@@ -84,7 +121,25 @@ model TenantConfig {
   haciendaPassword  String
   llaveCryptBase64  String
   llavePin          String
-  consecutive       Int      @default(1)
+  consecutivoFE     Int      @default(1) // 01 Factura
+  consecutivoTE     Int      @default(1) // 04 Tiquete - ASADAS usan este
+  sucursal          String   @default("001")
+  terminal          String   @default("00001")
+  // Cargos fijos ARESEP configurables
+  tprhDomiciliar    Decimal  @default(0)
+  tprhComercial     Decimal  @default(0)
+  hidrantesMensual  Decimal  @default(0)
+  // SINPE Móvil de la ASADA (donde pagan los abonados) - configurable por ASADA
+  sinpeNumero       String?  // ej 87654321 - 8 dígitos CR
+  sinpeNombre       String?  // titular: ASADA San Rafael
+  sinpeBanco        String?  @default("BNCR")
+  sinpeNumero2      String?  // secundario opcional
+  sinpeNombre2      String?
+  // WhatsApp remitente = ASADA (no plataforma) - cada ASADA con su número
+  whatsappNumero    String?  // ej 88881234 - el que ve el abonado como remitente
+  whatsappNombre    String?  // nombre verificado: ASADA San Rafael
+  whatsappPhoneId   String?  // Meta Cloud API phone_id
+  whatsappToken     String?  // token encriptado
   tenant            Tenant   @relation(fields: [tenantId], references: [id])
 }
 
@@ -98,20 +153,40 @@ model User {
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
 
   registeredPayments Payment[]
+  cashClosings       CashClosing[]
+  readings           Reading[]
 }
 
 model Subscriber {
-  id        String             @id @default(uuid())
-  tenantId  String
-  name      String
-  nis       String
-  category  SubscriberCategory @default(DOMICILIAR)
-  meters    Meter[]
-  invoices  Invoice[]
-  payments  Payment[]
-  tenant    Tenant             @relation(fields: [tenantId], references: [id])
+  id               String             @id @default(uuid())
+  tenantId         String
+  name             String
+  nis              String
+  // Padrón AyA completo
+  tipoIdentificacion String           @default("01") // 01=Cédula física, 02=Jurídica, 03=DIMEX
+  identificacion   String?
+  telefono         String?
+  email            String?            // obligatorio FE
+  direccion        String?
+  distrito         String?
+  canton           String?
+  provincia        String?
+  lat              Decimal?
+  lng              Decimal?
+  category         SubscriberCategory @default(DOMICILIAR)
+  status           SubscriberStatus   @default(ACTIVO)
+  saldoFavor       Decimal            @default(0)
+  fechaConexion    DateTime?
+  rutaLectura      String?            // ej "RUTA-01" para ordenar caminador
+
+  meters           Meter[]
+  invoices         Invoice[]
+  payments         Payment[]
+  tenant           Tenant             @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, nis])
+  @@index([tenantId, status])
+  @@index([tenantId, rutaLectura])
 }
 
 model Meter {
@@ -119,19 +194,52 @@ model Meter {
   tenantId     String
   subscriberId String
   number       String
+  marca        String?
+  diametro     String?    @default("1/2")
+  estado       String     @default("ACTIVO")
+  fechaInstalacion DateTime?
   readings     Reading[]
   tenant       Tenant     @relation(fields: [tenantId], references: [id])
   subscriber   Subscriber @relation(fields: [subscriberId], references: [id])
+
+  @@unique([tenantId, number])
 }
 
 model Reading {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   tenantId  String
   meterId   String
   value     Decimal
-  date      DateTime @default(now())
+  date      DateTime       @default(now())
+  // Campo AyA
+  anomalia  ReadingAnomaly @default(NONE)
+  observacion String?
+  fotoUrl   String?
+  gpsLat    Decimal?
+  gpsLng    Decimal?
+  lectorId  String?
+  consumoCalculado Int?
+
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   meter     Meter    @relation(fields: [meterId], references: [id])
+  lector    User?    @relation(fields: [lectorId], references: [id])
+
+  @@index([meterId, date])
+  @@index([tenantId, date])
+}
+
+model BillingCycle {
+  id          String   @id @default(uuid())
+  tenantId    String
+  periodo     String   // YYYY-MM
+  ruta        String?  // null = todas
+  estado      String   @default("BORRADOR") // BORRADOR, FACTURADO, CERRADO
+  totalFacturas Int    @default(0)
+  totalMonto    Decimal @default(0)
+  createdAt   DateTime @default(now())
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  @@unique([tenantId, periodo, ruta])
 }
 
 model Tariff {
@@ -141,11 +249,16 @@ model Tariff {
   name            String
   baseCharge      Decimal
   baseCubicMeters Int      @default(15)
+  tprh            Decimal  @default(0)
+  hidrantes       Decimal  @default(0)
   isActive        Boolean  @default(true)
   validFrom       DateTime @default(now())
+  validUntil      DateTime?
 
   blocks          TariffBlock[]
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, category, isActive])
 }
 
 model TariffBlock {
@@ -161,25 +274,33 @@ model Invoice {
   id                 String         @id @default(uuid())
   tenantId           String
   subscriberId       String
-  consecutivo        String
-  clave              String         @unique
+  cycleId            String?
+  tipoComprobante    TipoComprobante @default(TIQUETE_ELECTRONICO)
+  consecutivo        String         // 20 dígitos: sucursal(3)+terminal(5)+tipo(2)+consecutivo(10)
+  clave              String         @unique // 50 dígitos Hacienda
   estadoHacienda     HaciendaStatus @default(PENDIENTE)
   status             InvoiceStatus  @default(PENDING)
   subtotal           Decimal
+  subtotalExento     Decimal        @default(0)
+  subtotalGravado    Decimal        @default(0)
   impuestoIVA        Decimal
   total              Decimal
+  saldoPendiente     Decimal        // para pagos parciales FIFO
   periodoFacturacion String
   fechaEmision       DateTime       @default(now())
   fechaVencimiento   DateTime
   detalleCalculo     Json
   respuestaHacienda  Json?
-  paymentDetails     Json?
+  intentosEnvio      Int            @default(0)
+  fechaUltimoEnvio   DateTime?
+
   tenant             Tenant         @relation(fields: [tenantId], references: [id])
   subscriber         Subscriber     @relation(fields: [subscriberId], references: [id])
   payments           Payment[]
 
   @@index([tenantId, status])
   @@index([tenantId, subscriberId])
+  @@index([periodoFacturacion])
 }
 
 model Payment {
@@ -194,13 +315,76 @@ model Payment {
   bankAccount     String?
   status          PaymentStatus @default(PROCESSED)
   registeredById  String
+  cashClosingId   String?
 
   tenant          Tenant        @relation(fields: [tenantId], references: [id])
   subscriber      Subscriber    @relation(fields: [subscriberId], references: [id])
   invoice         Invoice?      @relation(fields: [invoiceId], references: [id])
   registeredBy    User          @relation(fields: [registeredById], references: [id])
+  cashClosing     CashClosing?  @relation(fields: [cashClosingId], references: [id])
 
   @@index([referenceNumber])
   @@index([paymentDate])
   @@index([tenantId])
+  @@index([subscriberId, paymentDate])
+}
+
+model CashClosing {
+  id              String   @id @default(uuid())
+  tenantId        String
+  fecha           DateTime @default(now())
+  responsableId   String
+  montoEfectivo   Decimal  @default(0)
+  montoSinpe      Decimal  @default(0)
+  montoTransferencia Decimal @default(0)
+  montoTarjeta    Decimal  @default(0)
+  total           Decimal  @default(0)
+  observacion     String?
+  estado          String   @default("ABIERTO") // ABIERTO, CERRADO
+
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  responsable     User     @relation(fields: [responsableId], references: [id])
+  payments        Payment[]
+
+  @@index([tenantId, fecha])
+}
+
+model SaaSSubscription {
+  id              String   @id @default(uuid())
+  tenantId        String
+  periodo         String   // YYYY-MM
+  abonadosCount   Int
+  plan            TenantPlan
+  monto           Decimal  // colones
+  montoUSD        Decimal? // referencia
+  status          String   @default("PENDING") // PENDING, PAID, OVERDUE, TRIAL
+  fechaVencimiento DateTime
+  fechaPago       DateTime?
+  referenciaPago  String?
+  createdAt       DateTime @default(now())
+
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, periodo])
+  @@index([status])
+  @@index([periodo])
+}
+
+model NotificationLog {
+  id           String   @id @default(uuid())
+  tenantId     String
+  subscriberId String?
+  invoiceId    String?
+  tipo         String   // RECORDATORIO_5, VENCIMIENTO_HOY, MOROSO_7, MOROSO_15, MOROSO_30, CORTE_AVISO
+  canal        String   @default("WHATSAPP") // WHATSAPP, SMS
+  destino      String   // telefono
+  mensaje      String
+  status       String   @default("SENT") // SENT, FAILED, SIMULADO
+  createdAt    DateTime @default(now())
+
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, tipo])
+  @@index([subscriberId])
+  @@index([createdAt])
 }

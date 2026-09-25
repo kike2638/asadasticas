@@ -16,12 +16,15 @@ export default async function PaymentsPage() {
 
   const tenantId = session.user.tenantId;
 
-  const payments = await prisma.payment.findMany({
-    where: { tenantId },
-    include: { subscriber: true, invoice: true },
-    orderBy: { paymentDate: "desc" },
-    take: 50,
-  });
+  const [payments, cfg] = await Promise.all([
+    prisma.payment.findMany({
+      where: { tenantId },
+      include: { subscriber: true, invoice: true },
+      orderBy: { paymentDate: "desc" },
+      take: 50,
+    }),
+    prisma.tenantConfig.findUnique({ where: { tenantId }, select: { sinpeNumero: true, sinpeNombre: true, sinpeBanco: true } }),
+  ]);
 
   const totalPayments = payments.reduce(
     (sum, p) => sum + p.amount.toNumber(),
@@ -42,6 +45,18 @@ export default async function PaymentsPage() {
         <p className="section-label mb-1.5">Operaciones</p>
         <h1 className="page-title mb-1">Pagos</h1>
         <p className="page-subtitle">{payments.length} pagos registrados</p>
+        {cfg?.sinpeNumero && (
+          <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-sm">
+            <span className="text-emerald-300 font-bold">SINPE ASADA: {cfg.sinpeNumero.replace(/(\d{4})(\d{4})/, "$1-$2")} {cfg.sinpeNombre ? `• ${cfg.sinpeNombre}` : ""}</span>
+            <span className="text-xs text-gray-400">({cfg.sinpeBanco})</span>
+            <a href="/configuracion" className="text-xs text-cyan-400 underline ml-2">cambiar</a>
+          </div>
+        )}
+        {!cfg?.sinpeNumero && (
+          <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
+            ⚠️ Sin SINPE configurado — <a href="/configuracion" className="underline">configurar ahora</a> para recibir pagos
+          </div>
+        )}
       </div>
 
       {/* Stats */}
@@ -101,19 +116,20 @@ export default async function PaymentsPage() {
             <table className="table-modern">
               <thead>
                 <tr>
-                  <th>Fecha</th>
+                    <th>Fecha</th>
                   <th>Abonado</th>
                   <th>Monto</th>
                   <th>Método</th>
                   <th>Referencia</th>
                   <th>Estado</th>
+                  <th>Recibo</th>
                 </tr>
               </thead>
               <tbody>
                 {payments.map((payment, index) => (
                   <tr
                     key={payment.id}
-                    className="animate-fade-in"
+                    className="animate-fade-in hover:bg-white/[0.02]"
                     style={{ animationDelay: `${300 + index * 30}ms` }}
                   >
                     <td>
@@ -156,6 +172,9 @@ export default async function PaymentsPage() {
                       >
                         {payment.status === "PROCESSED" ? "Procesado" : "Revertido"}
                       </span>
+                    </td>
+                    <td>
+                      <a href={`/api/receipt/${payment.id}`} className="text-xs text-cyan-400 hover:underline">🖨️ PDF</a>
                     </td>
                   </tr>
                 ))}

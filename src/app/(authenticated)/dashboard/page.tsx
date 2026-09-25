@@ -25,7 +25,7 @@ export default async function DashboardPage() {
     await Promise.all([
       prisma.subscriber.count({ where: { tenantId } }),
       prisma.invoice.count({ where: { tenantId } }),
-      prisma.invoice.count({ where: { tenantId, status: "PENDING" } }),
+      prisma.invoice.count({ where: { tenantId, status: { in: ["PENDING", "PARTIAL"] } } }),
       prisma.payment.findMany({
         where: { tenantId },
         orderBy: { paymentDate: "desc" },

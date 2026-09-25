@@ -51,9 +51,15 @@ export interface FacturaElectronica {
   }[];
 }
 
-export function generarXMLFactura(factura: FacturaElectronica): string {
+export function generarXMLTiquete(factura: FacturaElectronica): string {
+  // Tiquete electrónico 04 usa mismo esquema pero tag raíz <TiqueteElectronico> y sin Receptor obligatorio
+  return generarXMLFactura({ ...factura, _tag: "TiqueteElectronico" } as any);
+}
+
+export function generarXMLFactura(factura: FacturaElectronica & { _tag?: string }): string {
+  const tag = (factura as any)._tag ?? "FacturaElectronica";
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<FacturaElectronica xmlns="https://tribunet.hacienda.go.cr/documentos-electronicos/v4.3/facturaElectronica">
+<${tag} xmlns="https://tribunet.hacienda.go.cr/documentos-electronicos/v4.3/${tag.toLowerCase()}">
   <Clave>${factura.numeroRef}</Clave>
   <NumeroConsecutivo>${factura.numeroConsecutivo}</NumeroConsecutivo>
   <FechaEmision>${factura.fechaEmision}</FechaEmision>
@@ -106,7 +112,7 @@ ${factura.outrosMediosPago.map(medio => `    <MedioPago>
       ${medio.referencia ? `<Referencia>${medio.referencia}</Referencia>` : ""}
     </MedioPago>`).join("\n")}
   </OtrosMediosPago>` : ""}
-</FacturaElectronica>`;
+</${tag}>`;
 
   return xml;
 }
