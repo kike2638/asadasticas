@@ -18,6 +18,7 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const session = await getServerUser();
   if (!session) redirect("/login");
+  if (session.user.role === "PLATFORM_OWNER") redirect("/admin");
 
   const tenantId = session.user.tenantId;
 

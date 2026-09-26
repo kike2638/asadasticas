@@ -29,6 +29,7 @@ export default async function AuthenticatedLayout({
       userName={session?.user?.email}
       userRole={roleLabels[session?.user?.role ?? ""]}
       initials={initials}
+      role={session?.user?.role}
     >
       {children}
     </AppShell>

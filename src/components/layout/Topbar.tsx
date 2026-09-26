@@ -9,6 +9,8 @@ const sections: Record<string, { group: string; title: string }> = {
   "/billing": { group: "Operaciones", title: "Facturación" },
   "/payments": { group: "Operaciones", title: "Pagos" },
   "/lecturas": { group: "Operaciones", title: "Lecturas" },
+  "/admin/subscriptions": { group: "Plataforma", title: "Suscripciones" },
+  "/admin": { group: "Plataforma", title: "ASADAS" },
 };
 
 export function Topbar({

@@ -23,10 +23,12 @@ export default function CreateTenant() {
   };
 
   const reset = () => {
+    const creado = !!created;
     setOpen(false);
     setCreated(null);
     setError(null);
     setForm({ name: "", slug: "", cedulaJuridica: "", abonados: "" });
+    if (creado) location.reload();
   };
 
   const submit = async () => {

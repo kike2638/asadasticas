@@ -35,7 +35,9 @@ function LoginForm() {
         return;
       }
 
-      router.push(callbackUrl);
+      // El superadmin entra a su panel de ASADAS, no al dashboard de una ASADA
+      const target = data.user?.role === "PLATFORM_OWNER" && !searchParams.get("callbackUrl") ? "/admin" : callbackUrl;
+      router.push(target);
       router.refresh();
     } catch {
       setError("Error al conectar con el servidor");

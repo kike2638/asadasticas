@@ -311,6 +311,11 @@ body {
   color: var(--rose);
   border: 1px solid rgba(251, 113, 133, 0.18);
 }
+.badge-gray {
+  background: rgba(154, 169, 201, 0.1);
+  color: var(--text-secondary);
+  border: 1px solid rgba(154, 169, 201, 0.2);
+}
 
 /* Token utilities */
 .text-secondary {

@@ -24,6 +24,35 @@ function randomPassword(): string {
   return out;
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const h = await headers();
+    if (h.get("x-user-role") !== "PLATFORM_OWNER") {
+      return NextResponse.json({ error: "Solo superadmin" }, { status: 403 });
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const id = (body.id ?? "").toString();
+    const status = (body.status ?? "").toString();
+    const allowed = ["ACTIVE", "SUSPENDED", "INACTIVE"];
+
+    if (!id) return NextResponse.json({ error: "Falta el id de la ASADA" }, { status: 400 });
+    if (!allowed.includes(status)) return NextResponse.json({ error: "Estado inválido" }, { status: 400 });
+
+    const exists = await prisma.tenant.findUnique({ where: { id } });
+    if (!exists) return NextResponse.json({ error: "ASADA no encontrada" }, { status: 404 });
+    if (exists.slug === "plataforma-admin") {
+      return NextResponse.json({ error: "No se puede modificar la ASADA de la plataforma" }, { status: 400 });
+    }
+
+    const tenant = await prisma.tenant.update({ where: { id }, data: { status: status as any } });
+    return NextResponse.json({ success: true, tenant: { id: tenant.id, name: tenant.name, status: tenant.status } });
+  } catch (error) {
+    console.error("Error actualizando ASADA:", error);
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const h = await headers();

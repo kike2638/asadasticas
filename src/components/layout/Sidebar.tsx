@@ -12,10 +12,14 @@ import {
   Droplets,
   ChevronLeft,
   ChevronRight,
+  Building2,
 } from "lucide-react";
 import { useState } from "react";
 
-const navMain = [
+type NavItemDef = { href: string; label: string; icon: typeof Building2 };
+type NavGroup = { label: string; items: NavItemDef[] };
+
+const navAsada: NavGroup[] = [
   {
     label: "Panel",
     items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
@@ -51,8 +55,21 @@ const navMain = [
   },
 ];
 
-export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+const navSuperadmin: NavGroup[] = [
+  {
+    label: "Plataforma",
+    items: [
+      { href: "/admin", label: "ASADAS", icon: Building2 },
+      { href: "/admin/subscriptions", label: "Suscripciones", icon: CreditCard },
+    ],
+  },
+];
+
+const navFor = (role?: string): NavGroup[] => (role === "PLATFORM_OWNER" ? navSuperadmin : navAsada);
+
+export function Sidebar({ open, onClose, role }: { open: boolean; onClose: () => void; role?: string }) {
   const pathname = usePathname();
+  const navMain = navFor(role);
   const [collapsed, setCollapsed] = useState(false);
   const [tenantInfo, setTenantInfo] = useState<{ name: string; logoUrl: string | null; sinpe: string | null } | null>(null);
   // Carga logo+SINPE individual por ASADA

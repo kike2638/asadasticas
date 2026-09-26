@@ -9,11 +9,13 @@ export function AppShell({
   userName,
   userRole,
   initials,
+  role,
   children,
 }: {
   userName?: string | null;
   userRole?: string;
   initials?: string;
+  role?: string;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -53,7 +55,7 @@ export function AppShell({
           aria-hidden="true"
         />
       )}
-      <Sidebar open={open} onClose={() => setOpen(false)} />
+      <Sidebar open={open} onClose={() => setOpen(false)} role={role} />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar
           userName={userName}
