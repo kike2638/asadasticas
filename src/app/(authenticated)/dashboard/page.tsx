@@ -327,7 +327,7 @@ export default async function DashboardPage() {
                     <p className="text-sm font-semibold text-white">
                       {formatCurrency(payment.amount.toNumber())}
                     </p>
-                    <span className="badge badge-cyan text-[11px]">
+                    <span className="badge badge-cyan text-xs">
                       {payment.paymentMethod}
                     </span>
                   </div>
@@ -526,7 +526,7 @@ function CategoryDonut({
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <p className="text-2xl font-bold text-white leading-none">{total}</p>
-          <p className="text-[11px] text-muted mt-1">abonados</p>
+          <p className="text-xs text-muted mt-1">abonados</p>
         </div>
       </div>
 
@@ -541,7 +541,7 @@ function CategoryDonut({
             <span className="text-[13px] font-semibold text-white">
               {seg.count}
             </span>
-            <span className="text-[11px] text-muted w-9 text-right">
+            <span className="text-xs text-muted w-9 text-right">
               {total > 0 ? Math.round((seg.count / total) * 100) : 0}%
             </span>
           </div>

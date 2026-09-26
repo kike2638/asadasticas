@@ -55,7 +55,7 @@ export default async function MapaPage() {
       )}
 
       <div className="glass p-4 rounded-2xl">
-        <p className="text-sm text-muted">💡 Tip fontanero: filtra por <span className="text-white">RUTA-01</span> y planifica cortes. Morosos en rojo. Exporta lista desde <a href="/morosidad" className="text-cyan-400 underline">Morosidad</a>.</p>
+        <p className="text-sm text-muted">Tip fontanero: filtra por <span className="text-white">RUTA-01</span> y planifica cortes. Morosos en rojo. Exporta lista desde <a href="/morosidad" className="text-cyan-400 underline">Morosidad</a>.</p>
       </div>
     </div>
   );

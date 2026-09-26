@@ -67,10 +67,10 @@ export default function BulkClient({ pendientes, rutas, periodo }: { pendientes:
                   <tr key={p.meterId}>
                     <td className="font-mono text-xs text-gray-300">{p.nis}</td>
                     <td className="text-white text-sm">{p.name} <span className="text-xs text-muted">({p.category})</span></td>
-                    <td><span className="badge badge-cyan text-[11px]">{p.ruta}</span></td>
+                    <td><span className="badge badge-cyan text-xs">{p.ruta}</span></td>
                     <td className="font-mono text-xs text-gray-300">{p.meterNumber}</td>
                     <td className="text-gray-400 text-sm">{p.lastReading} m³</td>
-                    <td><input type="number" value={lecturas[p.meterId] ?? ""} onChange={e => setLecturas({ ...lecturas, [p.meterId]: e.target.value })} placeholder={String(p.lastReading + 15)} className={`w-28 px-2 py-1.5 rounded-lg bg-white/[0.06] border text-sm text-white text-center ${alerta ? "border-amber-500/50 bg-amber-500/10" : "border-white/10"}`} /></td>
+                    <td><input type="number" aria-label={`Lectura para ${p.name} NIS ${p.nis}`} inputMode="numeric" value={lecturas[p.meterId] ?? ""} onChange={e => setLecturas({ ...lecturas, [p.meterId]: e.target.value })} placeholder={String(p.lastReading + 15)} className={`w-28 px-2 py-1.5 rounded-lg bg-white/[0.06] border text-sm text-white text-center ${alerta ? "border-amber-500/50 bg-amber-500/10" : "border-white/10"}`} /></td>
                     <td className={`text-sm font-bold ${alerta ? "text-amber-400" : "text-cyan-300"}`}>{consumo !== null ? `${consumo} m³` : "—"} {alerta && <AlertTriangle className="w-3 h-3 inline ml-1" />}</td>
                   </tr>
                 );

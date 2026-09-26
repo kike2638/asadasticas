@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { Menu } from "lucide-react";
 
 const sections: Record<string, { group: string; title: string }> = {
   "/dashboard": { group: "Panel", title: "Dashboard" },
@@ -14,10 +15,12 @@ export function Topbar({
   userName,
   userRole,
   initials,
+  onMenu,
 }: {
   userName?: string | null;
   userRole?: string;
   initials?: string;
+  onMenu?: () => void;
 }) {
   const pathname = usePathname();
   const section = Object.entries(sections).find(([href]) =>
@@ -31,9 +34,16 @@ export function Topbar({
   });
 
   return (
-    <header className="h-16 shrink-0 border-b border-[rgba(96,165,250,0.08)] bg-[rgba(5,9,22,0.6)] backdrop-blur-xl flex items-center justify-between px-6 lg:px-8">
-      {/* Left: breadcrumb */}
+    <header className="h-16 shrink-0 border-b border-[rgba(96,165,250,0.08)] bg-[rgba(5,9,22,0.6)] backdrop-blur-xl flex items-center justify-between px-4 sm:px-6 lg:px-8">
+      {/* Left: menu + breadcrumb */}
       <div className="flex items-center gap-2.5 min-w-0">
+        <button
+          onClick={onMenu}
+          className="lg:hidden -ml-1 p-2.5 rounded-lg text-muted hover:text-white hover:bg-white/5 transition-colors"
+          aria-label="Abrir menú"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
         {section && (
           <>
             <span className="text-[13px] text-muted">{section.group}</span>
@@ -61,7 +71,7 @@ export function Topbar({
             <p className="text-[13px] font-medium text-white max-w-[180px] truncate">
               {userName ?? "Usuario"}
             </p>
-            <p className="text-[11px] text-muted">{userRole ?? ""}</p>
+            <p className="text-xs text-muted">{userRole ?? ""}</p>
           </div>
         </div>
       </div>

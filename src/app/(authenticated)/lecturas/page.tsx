@@ -139,7 +139,7 @@ export default async function LecturasPage() {
                       </div>
                     </td>
                     <td>
-                      <span className={`badge text-[11px] ${(reading as any).anomalia !== "NONE" ? "badge-orange" : "badge-green"}`}>
+                      <span className={`badge text-xs ${(reading as any).anomalia !== "NONE" ? "badge-orange" : "badge-green"}`}>
                         {(reading as any).anomalia ?? "OK"}
                       </span>
                     </td>

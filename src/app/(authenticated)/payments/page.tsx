@@ -174,7 +174,7 @@ export default async function PaymentsPage() {
                       </span>
                     </td>
                     <td>
-                      <a href={`/api/receipt/${payment.id}`} className="text-xs text-cyan-400 hover:underline">🖨️ PDF</a>
+                      <a href={`/api/receipt/${payment.id}`} className="text-xs text-cyan-400 hover:underline"><span className="inline-flex items-center gap-1"><span aria-hidden="true">PDF</span></span></a>
                     </td>
                   </tr>
                 ))}

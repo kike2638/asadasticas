@@ -77,7 +77,7 @@ export default function NotificacionesClient({ sinpe, logs }: { sinpe: string | 
                   <td className="font-mono text-xs text-gray-300">{q.telefono}</td>
                   <td className="text-gray-300">{q.periodo}</td>
                   <td className="text-xs text-gray-400">{new Date(q.vencimiento).toLocaleDateString("es-CR")}<span className="ml-1 text-muted">({q.dias > 0 ? `en ${q.dias}d` : `${Math.abs(q.dias)}d vencida`})</span></td>
-                  <td><span className={`badge text-[11px] ${q.tipo.includes("MOROSO") ? "badge-red" : q.tipo === "RECORDATORIO_5" ? "badge-cyan" : q.tipo === "VENCIMIENTO_HOY" ? "badge-yellow" : "badge-orange"}`}>{q.tipo}</span></td>
+                  <td><span className={`badge text-xs ${q.tipo.includes("MOROSO") ? "badge-red" : q.tipo === "RECORDATORIO_5" ? "badge-cyan" : q.tipo === "VENCIMIENTO_HOY" ? "badge-yellow" : "badge-orange"}`}>{q.tipo}</span></td>
                   <td className="font-bold text-white">₡{q.total.toLocaleString()}</td>
                 </tr>
               ))}
@@ -101,8 +101,8 @@ export default function NotificacionesClient({ sinpe, logs }: { sinpe: string | 
         <div className="divide-y divide-white/5">
           {logs.length === 0 ? <p className="text-center py-6 text-muted text-sm">Sin envíos aún</p> : logs.map((l: any) => (
             <div key={l.id} className="p-3 flex items-center justify-between text-sm">
-              <div><span className={`badge text-[11px] ${l.tipo.includes("MOROSO") ? "badge-red" : "badge-cyan"}`}>{l.tipo}</span><span className="ml-2 text-white">{l.destino}</span><span className="text-xs text-muted ml-2">{new Date(l.createdAt).toLocaleString("es-CR")}</span></div>
-              <span className={`badge text-[11px] ${l.status === "SENT" ? "badge-green" : l.status === "SIMULADO" ? "badge-yellow" : "badge-red"}`}>{l.status}</span>
+              <div><span className={`badge text-xs ${l.tipo.includes("MOROSO") ? "badge-red" : "badge-cyan"}`}>{l.tipo}</span><span className="ml-2 text-white">{l.destino}</span><span className="text-xs text-muted ml-2">{new Date(l.createdAt).toLocaleString("es-CR")}</span></div>
+              <span className={`badge text-xs ${l.status === "SENT" ? "badge-green" : l.status === "SIMULADO" ? "badge-yellow" : "badge-red"}`}>{l.status}</span>
             </div>
           ))}
         </div>

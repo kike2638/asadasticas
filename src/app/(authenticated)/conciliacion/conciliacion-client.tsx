@@ -111,11 +111,11 @@ export default function ConciliacionClient({ sinpe, sinpeNombre, role, tenantSlu
 
             <div className="overflow-x-auto max-h-[520px]">
               <table className="table-modern text-sm">
-                <thead className="sticky top-0 bg-[#0a1020]"><tr><th><input type="checkbox" checked={visibleMatches.length > 0 && visibleMatches.every((m: any) => selected[m.txIndex])} onChange={e => { const next: any = { ...selected }; visibleMatches.forEach((m: any) => { if (e.target.checked) { if (m.invoice) next[m.txIndex] = { invoiceId: m.invoice.id, subscriberId: m.invoice.subscriberId }; if (m.subscription) next[m.txIndex] = { subscriptionId: m.subscription.id } as any; } else delete next[m.txIndex]; }); setSelected(next); }} /></th><th>Fecha</th><th>Banco ref</th><th>Monto</th><th>Descripción</th><th>Match</th><th>Score</th></tr></thead>
+                <thead className="sticky top-0 bg-[#0a1020]"><tr><th><input type="checkbox" aria-label="Seleccionar todos" checked={visibleMatches.length > 0 && visibleMatches.every((m: any) => selected[m.txIndex])} onChange={e => { const next: any = { ...selected }; visibleMatches.forEach((m: any) => { if (e.target.checked) { if (m.invoice) next[m.txIndex] = { invoiceId: m.invoice.id, subscriberId: m.invoice.subscriberId }; if (m.subscription) next[m.txIndex] = { subscriptionId: m.subscription.id } as any; } else delete next[m.txIndex]; }); setSelected(next); }} /></th><th>Fecha</th><th>Banco ref</th><th>Monto</th><th>Descripción</th><th>Match</th><th>Score</th></tr></thead>
                 <tbody>
                   {visibleMatches.map((m: any) => (
                     <tr key={m.txIndex} className={m.suggestedAction === "AUTO_MATCH" ? "bg-emerald-500/10" : m.suggestedAction === "REVIEW" ? "bg-amber-500/5" : ""}>
-                      <td><input type="checkbox" checked={!!selected[m.txIndex]} onChange={e => setSelected({ ...selected, [m.txIndex]: e.target.checked ? (m.invoice ? { invoiceId: m.invoice.id, subscriberId: m.invoice.subscriberId } : m.subscription ? { subscriptionId: m.subscription.id } as any : null as any) : undefined } as any)} disabled={!m.invoice && !m.subscription} /></td>
+                      <td><input type="checkbox" aria-label={`Seleccionar ${m.tx.referencia || m.tx.fecha}`} checked={!!selected[m.txIndex]} onChange={e => setSelected({ ...selected, [m.txIndex]: e.target.checked ? (m.invoice ? { invoiceId: m.invoice.id, subscriberId: m.invoice.subscriberId } : m.subscription ? { subscriptionId: m.subscription.id } as any : null as any) : undefined } as any)} disabled={!m.invoice && !m.subscription} /></td>
                       <td className="text-gray-300 font-mono text-xs">{m.tx.fecha}</td>
                       <td className="font-mono text-xs text-gray-300">{m.tx.referencia || "—"}</td>
                       <td className={`font-bold ${m.tx.monto > 0 ? "text-emerald-400" : "text-gray-400"}`}>{formatCRC(Math.abs(m.tx.monto))}</td>
@@ -124,9 +124,9 @@ export default function ConciliacionClient({ sinpe, sinpeNombre, role, tenantSlu
                         {m.invoice && <div><span className="text-white font-medium">{m.invoice.nis} {m.invoice.subscriberName.split(" ")[0]}</span><span className="text-xs text-muted ml-1">• {m.invoice.periodo} • {formatCRC(m.invoice.saldo)}</span></div>}
                         {m.subscription && <div><span className="text-white font-medium">{m.subscription.tenantName}</span><span className="text-xs text-muted ml-1">• {m.subscription.periodo} • {formatCRC(m.subscription.monto)}</span></div>}
                         {!m.invoice && !m.subscription && <span className="text-xs text-muted">{m.reason.join(" • ")}</span>}
-                        {m.reason?.length > 0 && (m.invoice || m.subscription) && <p className="text-[11px] text-muted">{m.reason.join(" • ")}</p>}
+                        {m.reason?.length > 0 && (m.invoice || m.subscription) && <p className="text-xs text-muted">{m.reason.join(" • ")}</p>}
                       </td>
-                      <td><span className={`badge text-[11px] ${m.suggestedAction === "AUTO_MATCH" ? "badge-green" : m.suggestedAction === "REVIEW" ? "badge-yellow" : "badge-cyan"}`}>{m.suggestedAction} {m.score > 0 && `${m.score}`}</span></td>
+                      <td><span className={`badge text-xs ${m.suggestedAction === "AUTO_MATCH" ? "badge-green" : m.suggestedAction === "REVIEW" ? "badge-yellow" : "badge-cyan"}`}>{m.suggestedAction} {m.score > 0 && `${m.score}`}</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -137,7 +137,7 @@ export default function ConciliacionClient({ sinpe, sinpeNombre, role, tenantSlu
           </div>
 
           <div className="glass p-4 rounded-2xl">
-            <p className="text-xs text-muted">💡 Heurística: monto exacto + NIS/nombre en descripción o referencia + tipo. <span className="text-white">AUTO</span> ≥70 puntos, <span className="text-amber-300">REVIEW</span> 45-69. Abonos parciales detectados si monto &lt; saldo.</p>
+            <p className="text-xs text-muted">Heurística: monto exacto + NIS/nombre en descripción o referencia + tipo. <span className="text-white">AUTO</span> ≥70 puntos, <span className="text-amber-300">REVIEW</span> 45-69. Abonos parciales detectados si monto &lt; saldo.</p>
           </div>
         </>
       )}

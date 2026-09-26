@@ -17,8 +17,8 @@ interface Abonado {
 const statusColor: Record<string, string> = {
   ACTIVO: "#22d3ee", MOROSO: "#f59e0b", CORTE: "#ef4444", SUSPENDIDO: "#a78bfa", RETIRADO: "#64748b",
 };
-const categoryIcon: Record<string, string> = {
-  DOMICILIAR: "🏠", COMERCIAL: "🏪", INDUSTRIAL: "🏭", PUBLICO: "🏛️",
+const categoryLabel: Record<string, string> = {
+  DOMICILIAR: "Residencial", COMERCIAL: "Comercial", INDUSTRIAL: "Industrial", PUBLICO: "Público",
 };
 
 export default function AbonadosMap({ abonados }: { abonados: Abonado[] }) {
@@ -94,7 +94,7 @@ export default function AbonadosMap({ abonados }: { abonados: Abonado[] }) {
               {/* @ts-ignore */}
               <Popup>
                 <div style={{ minWidth: 180 }}>
-                  <strong>{categoryIcon[a.category] ?? "📍"} {a.name}</strong><br />
+                  <strong>{categoryLabel[a.category] ?? "Abonado"} {a.name}</strong><br />
                   NIS {a.nis} • {a.ruta ?? "Sin ruta"}<br />
                   <span style={{ color: statusColor[a.status] ?? "#666", fontWeight: 600 }}>{a.status}</span> • {a.category}<br />
                   Medidor {a.medidor}<br />

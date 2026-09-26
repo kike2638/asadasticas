@@ -66,44 +66,61 @@ export default function CreateTenant() {
                 <Building2 className="w-5 h-5 text-cyan-400" />
                 <h2 className="font-bold text-white">{created ? "ASADA creada" : "Nueva ASADA"}</h2>
               </div>
-              <button onClick={reset} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+              <button onClick={reset} aria-label="Cerrar" className="p-2 -m-1 text-gray-400 hover:text-white rounded-lg hover:bg-white/5"><X className="w-5 h-5" /></button>
             </div>
 
             {!created ? (
               <div className="space-y-3">
-                <input
-                  placeholder="Nombre: ASADA San Rafael"
-                  value={form.name}
-                  onChange={e => setForm({ ...form, name: e.target.value, slug: form.slug || slugify(e.target.value) })}
-                  className="input-modern w-full"
-                  autoFocus
-                />
-                <input
-                  placeholder="Slug: asada-san-rafael"
-                  value={form.slug}
-                  onChange={e => setForm({ ...form, slug: e.target.value.toLowerCase() })}
-                  className="input-modern w-full font-mono"
-                />
-                <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="nt-name" className="block text-xs font-medium text-gray-400 mb-1.5">Nombre de la ASADA *</label>
                   <input
-                    placeholder="Cédula jurídica (opcional)"
-                    value={form.cedulaJuridica}
-                    onChange={e => setForm({ ...form, cedulaJuridica: e.target.value })}
-                    className="input-modern"
-                  />
-                  <input
-                    placeholder="Abonados ej: 350"
-                    inputMode="numeric"
-                    value={form.abonados}
-                    onChange={e => setForm({ ...form, abonados: e.target.value.replace(/\D/g, "") })}
-                    className="input-modern"
+                    id="nt-name"
+                    placeholder="ASADA San Rafael"
+                    value={form.name}
+                    onChange={e => setForm({ ...form, name: e.target.value, slug: form.slug || slugify(e.target.value) })}
+                    className="input-modern w-full"
+                    autoFocus
                   />
                 </div>
+                <div>
+                  <label htmlFor="nt-slug" className="block text-xs font-medium text-gray-400 mb-1.5">Slug (URL)</label>
+                  <input
+                    id="nt-slug"
+                    placeholder="asada-san-rafael"
+                    value={form.slug}
+                    onChange={e => setForm({ ...form, slug: e.target.value.toLowerCase() })}
+                    className="input-modern w-full font-mono"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="nt-cedula" className="block text-xs font-medium text-gray-400 mb-1.5">Cédula jurídica</label>
+                    <input
+                      id="nt-cedula"
+                      placeholder="3002087654"
+                      inputMode="numeric"
+                      value={form.cedulaJuridica}
+                      onChange={e => setForm({ ...form, cedulaJuridica: e.target.value })}
+                      className="input-modern"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="nt-abonados" className="block text-xs font-medium text-gray-400 mb-1.5">Abonados</label>
+                    <input
+                      id="nt-abonados"
+                      placeholder="350"
+                      inputMode="numeric"
+                      value={form.abonados}
+                      onChange={e => setForm({ ...form, abonados: e.target.value.replace(/\D/g, "") })}
+                      className="input-modern"
+                    />
+                  </div>
+                </div>
                 <p className="text-xs text-gray-500">Trial 14 días • admin inicial con contraseña aleatoria • SINPE/logo configurables por la ASADA en Configuración.</p>
-                {error && <p className="text-sm text-red-400">{error}</p>}
-                <button onClick={submit} disabled={loading || form.name.trim().length < 3} className="btn-primary w-full flex items-center justify-center gap-2">
+                {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
+                <button onClick={submit} disabled={loading || form.name.trim().length < 3} aria-busy={loading} className="btn-primary w-full flex items-center justify-center gap-2">
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
-                  Crear demo
+                  {loading ? "Creando…" : "Crear demo"}
                 </button>
               </div>
             ) : (
@@ -140,7 +157,7 @@ function Row({ label, value, onCopy, copied }: { label: string; value: string; o
     <div className="flex items-center justify-between gap-3">
       <span className="text-gray-400 shrink-0">{label}</span>
       <span className="font-mono text-white truncate">{value}</span>
-      <button onClick={onCopy} className="text-cyan-400 hover:text-cyan-300 shrink-0">
+      <button onClick={onCopy} aria-label={`Copiar ${label}`} className="p-2 -m-2 text-cyan-400 hover:text-cyan-300 shrink-0">
         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
       </button>
     </div>

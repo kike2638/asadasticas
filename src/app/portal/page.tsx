@@ -44,14 +44,22 @@ export default function PortalPage() {
           <h2 className="font-semibold text-white flex items-center gap-2"><Search className="w-5 h-5 text-cyan-400" />Consulta tu estado de cuenta</h2>
           <p className="text-sm text-muted mt-1">Selecciona tu ASADA e ingresa tu NIS (número de abonado que aparece en tu factura).</p>
           <div className="grid md:grid-cols-[1.5fr_1fr_auto] gap-3 mt-4">
-            <select value={slug} onChange={e => setSlug(e.target.value)} className="select-modern">
-              {tenants.length === 0 && <option value="asada-ejemplo">ASADA San Rafael (demo)</option>}
-              {tenants.map(t => <option key={t.slug} value={t.slug}>{t.name}</option>)}
-            </select>
-            <input value={nis} onChange={e => setNis(e.target.value)} placeholder="NIS ej: 001" className="input-modern" onKeyDown={e => e.key === "Enter" && buscar()} />
-            <button onClick={buscar} disabled={loading} className="btn-primary px-6 flex items-center justify-center gap-2">
-              {loading ? "Buscando..." : <><Search className="w-4 h-4" />Consultar</>}
-            </button>
+            <div>
+              <label htmlFor="pt-asada" className="block text-xs font-medium text-gray-400 mb-1.5">Tu ASADA</label>
+              <select id="pt-asada" value={slug} onChange={e => setSlug(e.target.value)} className="select-modern">
+                {tenants.length === 0 && <option value="asada-ejemplo">ASADA San Rafael (demo)</option>}
+                {tenants.map(t => <option key={t.slug} value={t.slug}>{t.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="pt-nis" className="block text-xs font-medium text-gray-400 mb-1.5">NIS (abonado)</label>
+              <input id="pt-nis" value={nis} onChange={e => setNis(e.target.value)} placeholder="ej: 001" inputMode="numeric" className="input-modern" onKeyDown={e => e.key === "Enter" && buscar()} />
+            </div>
+            <div className="flex items-end">
+              <button onClick={buscar} disabled={loading} aria-busy={loading} className="btn-primary px-6 min-h-11 flex items-center justify-center gap-2">
+                {loading ? "Buscando..." : <><Search className="w-4 h-4" />Consultar</>}
+              </button>
+            </div>
           </div>
           <p className="text-xs text-muted mt-2">Prueba demo: ASADA San Rafael + NIS 001, 002, 003</p>
           {error && <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm flex items-center gap-2"><AlertTriangle className="w-4 h-4" />{error}</div>}
@@ -84,7 +92,7 @@ export default function PortalPage() {
                   <div className="rounded-2xl bg-white p-4 flex flex-col items-center">
                     <img src={qrUrl} alt="QR SINPE" width={220} height={220} className="rounded-xl" />
                     <p className="text-xs text-gray-900 font-bold mt-2">Escanea para pagar por SINPE Móvil</p>
-                    <p className="text-[11px] text-gray-500 text-center">Abre tu banco → SINPE Móvil → Escanear QR o digita manual</p>
+                    <p className="text-xs text-gray-500 text-center">Abre tu banco → SINPE Móvil → Escanear QR o digita manual</p>
                   </div>
                   <div className="space-y-3">
                     <div className="rounded-xl bg-white/[0.04] border border-white/10 p-4">
@@ -95,7 +103,7 @@ export default function PortalPage() {
                         <div className="rounded-lg bg-black/40 p-2"><p className="text-muted">Monto exacto</p><p className="font-bold text-white text-sm">{formatCRC(data.deuda.total)}</p></div>
                         <div className="rounded-lg bg-black/40 p-2"><p className="text-muted">Referencia</p><p className="font-mono font-bold text-white">{data.abonado.nis}</p></div>
                       </div>
-                      <p className="text-[11px] text-muted mt-2">En tu app del banco pon <span className="text-white">Referencia: {data.abonado.nis}</span> para que se concilie automático.</p>
+                      <p className="text-xs text-muted mt-2">En tu app del banco pon <span className="text-white">Referencia: {data.abonado.nis}</span> para que se concilie automático.</p>
                       <a href={`https://wa.me/506${data.sinpe.numero}?text=Hola%20pago%20NIS%20${data.abonado.nis}%20${formatCRC(data.deuda.total)}`} target="_blank" className="mt-3 w-full py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold text-center block">Enviar comprobante por WhatsApp</a>
                     </div>
                     <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-300 flex gap-2"><AlertTriangle className="w-4 h-4 shrink-0" />Después de pagar, envía el comprobante SINPE por WhatsApp a la ASADA para validar en minutos.</div>

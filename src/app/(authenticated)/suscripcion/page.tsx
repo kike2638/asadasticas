@@ -74,7 +74,7 @@ export default async function SuscripcionPage() {
               <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-300">{PLATFORM.sinpeBanco}</span>
             </div>
             <p className="text-xs text-gray-400 mt-2">Monto exacto: <span className="text-white font-bold">{formatCRC(calc.montoCRC)}</span> • En referencia indica: <span className="font-mono text-white">{tenant?.slug}</span> • Periodo {periodo}</p>
-            <p className="text-[11px] text-muted mt-1">WhatsApp comprobante al {formatSinpeCR(PLATFORM.whatsapp)} • Se activa en 24h tras validar SINPE.</p>
+            <p className="text-xs text-muted mt-1">WhatsApp comprobante al {formatSinpeCR(PLATFORM.whatsapp)} • Se activa en 24h tras validar SINPE.</p>
           </div>
           <div className="flex gap-2 mt-3">
             <a href={`https://wa.me/506${PLATFORM.sinpeNumero}?text=Hola%20pago%20suscripcion%20${tenant?.slug}%20${periodo}%20${formatCRC(calc.montoCRC)}`} target="_blank" className="btn-primary flex-1 flex items-center justify-center gap-2"><CreditCard className="w-4 h-4" />Enviar comprobante por WhatsApp</a>

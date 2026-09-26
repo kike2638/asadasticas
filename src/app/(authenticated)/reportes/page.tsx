@@ -40,7 +40,7 @@ export default async function ReportesPage() {
             <div className="flex justify-between py-2 border-b border-white/5"><span className="text-gray-400">Cobrabilidad</span><span className="text-white font-bold">{facturas.length ? Math.round((totalCobrado / Math.max(1, totalFacturado)) * 100) : 0}%</span></div>
             <div className="flex justify-between py-2 border-b border-white/5"><span className="text-gray-400">Agua no contabilizada (estim.)</span><span className="text-amber-400">{anc}%</span></div>
             <div className="flex justify-between py-2"><span className="text-gray-400">Abonados activos</span><span className="text-white">{porCat.reduce((a, c) => a + c._count._all, 0)}</span></div>
-            <p className="text-[11px] text-muted mt-3">* ANC requiere macromedidor. Conectar caudal de entrada para cálculo real.</p>
+            <p className="text-xs text-muted mt-3">* ANC requiere macromedidor. Conectar caudal de entrada para cálculo real.</p>
           </div>
         </div>
         <div className="glass rounded-2xl p-6">
@@ -51,8 +51,8 @@ export default async function ReportesPage() {
             ))}
           </div>
           <div className="flex gap-2 mt-4">
-            <a href="/api/reports/export?tipo=facturas" className="flex-1 py-2 rounded-xl bg-white/5 border border-white/10 text-center text-sm text-gray-300">📥 CSV Facturas</a>
-            <a href="/api/reports/export?tipo=pagos" className="flex-1 py-2 rounded-xl bg-white/5 border border-white/10 text-center text-sm text-gray-300">📥 CSV Pagos</a>
+            <a href="/api/reports/export?tipo=facturas" className="flex-1 py-2 rounded-xl bg-white/5 border border-white/10 text-center text-sm text-gray-300"><span className="inline-flex align-middle mr-1.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>CSV Facturas</a>
+            <a href="/api/reports/export?tipo=pagos" className="flex-1 py-2 rounded-xl bg-white/5 border border-white/10 text-center text-sm text-gray-300"><span className="inline-flex align-middle mr-1.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>CSV Pagos</a>
           </div>
         </div>
       </div>

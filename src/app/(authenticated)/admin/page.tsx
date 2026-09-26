@@ -27,7 +27,7 @@ export default async function AdminPage() {
           <CreateTenant />
         </div>
       </div>
-      <div className="glass rounded-2xl overflow-hidden">
+      <div className="glass rounded-2xl overflow-hidden overflow-x-auto">
         <table className="table-modern"><thead><tr><th>ASADA</th><th>Slug</th><th>Plan</th><th>Abonados</th><th>Facturas</th><th>Estado</th></tr></thead>
           <tbody>{tenants.map(t => <tr key={t.id}><td className="text-white font-medium">{t.name}</td><td className="font-mono text-xs text-gray-400">{t.slug}</td><td><span className="badge badge-cyan">{t.plan}</span></td><td>{t._count.subscribers}</td><td>{t._count.invoices}</td><td><span className={`badge ${t.status === "ACTIVE" ? "badge-green" : "badge-red"}`}>{t.status}</span> {t.subscriptionStatus === "TRIAL" && <span className="badge badge-cyan ml-1">TRIAL{t.trialEndsAt ? ` ${new Date(t.trialEndsAt).toLocaleDateString("es-CR")}` : ""}</span>}</td></tr>)}</tbody>
         </table>

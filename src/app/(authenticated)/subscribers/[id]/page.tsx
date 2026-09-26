@@ -35,7 +35,7 @@ export default async function SubscriberDetail({ params }: { params: { id: strin
             {sub.telefono && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" />{sub.telefono}</span>}
             {sub.email && <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" />{sub.email}</span>}
             {sub.direccion && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{sub.direccion}</span>}
-            {sub.rutaLectura && <span className="badge badge-cyan text-[11px]">{sub.rutaLectura}</span>}
+            {sub.rutaLectura && <span className="badge badge-cyan text-xs">{sub.rutaLectura}</span>}
             {sub.lat && <a href={`https://maps.google.com/?q=${sub.lat},${sub.lng}`} target="_blank" className="text-cyan-400 underline">Ver en mapa</a>}
           </div>
         </div>
@@ -54,7 +54,7 @@ export default async function SubscriberDetail({ params }: { params: { id: strin
             {sub.invoices.map(inv => (
               <div key={inv.id} className="p-3 flex items-center justify-between">
                 <div><p className="text-sm text-white font-mono">{inv.periodoFacturacion} • {inv.consecutivo.slice(-10)}</p><p className="text-xs text-muted">{new Date(inv.fechaVencimiento).toLocaleDateString("es-CR")} • {inv.estadoHacienda}</p></div>
-                <div className="text-right"><p className="text-sm font-bold text-white">{formatCurrency(Number(inv.total))}</p><p className="text-xs text-muted">Saldo {formatCurrency(Number((inv as any).saldoPendiente ?? inv.total))}</p><span className={`badge text-[11px] ${inv.status === "PAID" ? "badge-green" : inv.status === "PENDING" ? "badge-yellow" : "badge-orange"}`}>{inv.status}</span></div>
+                <div className="text-right"><p className="text-sm font-bold text-white">{formatCurrency(Number(inv.total))}</p><p className="text-xs text-muted">Saldo {formatCurrency(Number((inv as any).saldoPendiente ?? inv.total))}</p><span className={`badge text-xs ${inv.status === "PAID" ? "badge-green" : inv.status === "PENDING" ? "badge-yellow" : "badge-orange"}`}>{inv.status}</span></div>
               </div>
             ))}
             {sub.invoices.length === 0 && <p className="text-center py-8 text-muted text-sm">Sin facturas</p>}
@@ -66,7 +66,7 @@ export default async function SubscriberDetail({ params }: { params: { id: strin
           <div className="divide-y divide-white/5 max-h-[420px] overflow-auto">
             {sub.payments.map(p => (
               <div key={p.id} className="p-3 flex items-center justify-between">
-                <div><p className="text-sm text-white">{formatCurrency(Number(p.amount))} • <span className="badge badge-cyan text-[11px]">{p.paymentMethod}</span></p><p className="text-xs text-muted font-mono">{p.referenceNumber ?? "—"} • {new Date(p.paymentDate).toLocaleDateString("es-CR")}</p></div>
+                <div><p className="text-sm text-white">{formatCurrency(Number(p.amount))} • <span className="badge badge-cyan text-xs">{p.paymentMethod}</span></p><p className="text-xs text-muted font-mono">{p.referenceNumber ?? "—"} • {new Date(p.paymentDate).toLocaleDateString("es-CR")}</p></div>
                 <span className={`badge ${p.status === "PROCESSED" ? "badge-green" : "badge-red"}`}>{p.status}</span>
               </div>
             ))}

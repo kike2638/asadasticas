@@ -51,7 +51,7 @@ const navMain = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [tenantInfo, setTenantInfo] = useState<{ name: string; logoUrl: string | null; sinpe: string | null } | null>(null);
@@ -70,13 +70,14 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`relative shrink-0 h-screen sticky top-0 flex flex-col transition-[width] duration-300 border-r border-[rgba(96,165,250,0.08)] bg-[rgba(5,9,22,0.72)] ${
+      aria-label="Menú principal"
+      className={`fixed lg:static inset-y-0 left-0 z-50 shrink-0 h-screen flex flex-col transition-[transform,visibility] duration-300 border-r border-[rgba(96,165,250,0.08)] bg-[rgba(5,9,22,0.97)] lg:bg-[rgba(5,9,22,0.72)] lg:backdrop-blur-xl ${
         collapsed ? "w-[76px]" : "w-64"
-      }`}
+      } ${open ? "translate-x-0 visible" : "-translate-x-full invisible"} lg:visible lg:translate-x-0`}
     >
       {/* Logo */}
       <div
-        className={`h-16 flex items-center border-b border-[rgba(96,165,250,0.08)] ${
+        className={`relative h-16 flex items-center border-b border-[rgba(96,165,250,0.08)] ${
           collapsed ? "justify-center px-2" : "justify-between px-4"
         }`}
       >
@@ -87,7 +88,7 @@ export function Sidebar() {
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-[13px] font-bold tracking-tight leading-none truncate">{tenantInfo?.name ?? "ASADAS"}<span className="ml-1.5 text-[10px] font-semibold text-[var(--brand)] align-super">v2</span></p>
-              <p className="text-[11px] text-muted mt-1 leading-none truncate">{tenantInfo?.sinpe ? `SINPE ${tenantInfo.sinpe}` : "Gestión de Agua"}</p>
+              <p className="text-xs text-muted mt-1 leading-none truncate">{tenantInfo?.sinpe ? `SINPE ${tenantInfo.sinpe}` : "Gestión de Agua"}</p>
             </div>
           )}
         </div>
@@ -108,6 +109,13 @@ export function Sidebar() {
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         )}
+        <button
+          onClick={onClose}
+          className="p-2 -mr-2 rounded-lg hover:bg-white/5 text-muted hover:text-white transition-colors lg:hidden"
+          aria-label="Cerrar menú"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -168,6 +176,7 @@ export function Sidebar() {
             collapsed ? "justify-center" : ""
           }`}
           title="Cerrar sesión"
+          aria-label="Cerrar sesión"
         >
           <LogOut className="w-5 h-5 shrink-0" />
           {!collapsed && <span>Cerrar sesión</span>}
@@ -195,6 +204,7 @@ function NavItem({
       <Link
         href={href}
         title={label}
+        aria-label={label}
         className={`relative w-11 h-11 flex items-center justify-center rounded-xl transition-all ${
           active
             ? "text-[#042635] bg-[var(--brand-grad)] shadow-[0_6px_16px_rgba(34,211,238,0.3)]"

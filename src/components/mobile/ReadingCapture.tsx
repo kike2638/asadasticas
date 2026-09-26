@@ -108,16 +108,16 @@ export default function ReadingCapture({ tenantId, lectorId }: Props) {
       {msg && <div className={`p-3 rounded-xl text-sm ${msg.startsWith("✓") ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300" : "bg-red-500/10 border border-red-500/20 text-red-300"}`}>{msg}</div>}
 
       <div className="space-y-3">
-        <select value={ruta} onChange={e => setRuta(e.target.value)} className="select-modern w-full text-sm">
+        <select value={ruta} onChange={e => setRuta(e.target.value)} aria-label="Ruta de lectura" className="select-modern w-full text-sm">
           <option value="TODAS">Ruta: Todas</option>
           <option value="RUTA-01">RUTA-01 - Centro</option>
           <option value="RUTA-02">RUTA-02 - Calle Principal</option>
         </select>
-        <input value={nis} onChange={e => setNis(e.target.value)} placeholder="NIS o número medidor (ej 001)" className="input-modern w-full"/>
+        <input value={nis} onChange={e => setNis(e.target.value)} placeholder="NIS o número medidor (ej 001)" aria-label="NIS o número de medidor" inputMode="numeric" className="input-modern w-full"/>
         <div className="flex gap-2">
-          <input type="number" value={lectura} onChange={e => setLectura(e.target.value)} placeholder="Lectura m³" className="input-modern flex-1 text-lg font-bold"/>
-          <button onClick={() => fileRef.current?.click()} className="btn-primary px-4"><Camera className="w-5 h-5"/></button>
-          <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFoto} />
+          <input type="number" value={lectura} onChange={e => setLectura(e.target.value)} placeholder="Lectura m³" aria-label="Lectura en metros cúbicos" inputMode="decimal" className="input-modern flex-1 text-lg font-bold"/>
+          <button onClick={() => fileRef.current?.click()} aria-label="Tomar o subir foto del medidor" className="btn-primary px-4 min-h-11"><Camera className="w-5 h-5"/></button>
+          <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" aria-label="Foto del medidor" onChange={handleFoto} />
         </div>
         {foto && <img src={foto} alt="preview" className="w-full h-32 object-cover rounded-xl" />}
         <select value={anomalia} onChange={e => setAnomalia(e.target.value)} className="select-modern w-full">
@@ -134,7 +134,7 @@ export default function ReadingCapture({ tenantId, lectorId }: Props) {
         <button onClick={handleSync} disabled={syncing || pending===0} className="w-full py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300 flex items-center justify-center gap-2 disabled:opacity-40">
           {syncing ? <Loader2 className="w-4 h-4 animate-spin"/> : <Wifi className="w-4 h-4"/>} Sincronizar ahora ({pending})
         </button>
-        <p className="text-[11px] text-muted flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-amber-400"/> Alerta si consumo &gt; 200% promedio o &gt;60m³ — queda en anomalía para fontanero</p>
+        <p className="text-xs text-muted flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-amber-400"/> Alerta si consumo &gt; 200% promedio o &gt;60m³ — queda en anomalía para fontanero</p>
       </div>
     </div>
   );

@@ -63,7 +63,7 @@ export default async function JuntaPage() {
         <div className="glass p-6">
           <h3 className="font-semibold text-white mb-3 flex items-center gap-2"><Droplets className="w-4 h-4 text-amber-400"/> Alertas lecturas</h3>
           {lecturasRecientes.length === 0 ? <p className="text-sm text-muted">Sin anomalías</p> : lecturasRecientes.map(r => (
-            <div key={r.id} className="flex justify-between py-2 border-b border-white/5 text-sm"><span className="text-gray-300">{r.meter.subscriber.name}</span><span className="badge badge-orange text-[11px]">{(r as any).anomalia}</span></div>
+            <div key={r.id} className="flex justify-between py-2 border-b border-white/5 text-sm"><span className="text-gray-300">{r.meter.subscriber.name}</span><span className="badge badge-orange text-xs">{(r as any).anomalia}</span></div>
           ))}
         </div>
       </div>

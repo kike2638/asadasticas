@@ -38,7 +38,7 @@ export default async function AdminSubsPage() {
       </div>
 
       <div className="flex gap-2">
-        <a href="/conciliacion" className="flex-1 py-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-center text-sm font-medium text-cyan-300">🏦 Conciliación automática CSV (tu 87607243)</a>
+        <a href="/conciliacion" className="flex-1 py-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-center text-sm font-medium text-cyan-300">Conciliación automática CSV (tu 87607243)</a>
         <a href="/api/banks/conciliate" className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300">API</a>
       </div>
 

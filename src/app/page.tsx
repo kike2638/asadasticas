@@ -79,7 +79,7 @@ export default function Home() {
           </div>
           <Link href="/login" className="px-6 py-3 rounded-xl bg-white text-[#050a18] font-semibold shrink-0">Ingresar ASADA →</Link>
         </div>
-        <p className="text-center text-xs text-gray-500 mt-6">Hecho con 💧 en Costa Rica • Cumple AyA • ARESEP 2026 • Hacienda v4.3 • Superadmin 8760-7243</p>
+        <p className="text-center text-xs text-gray-500 mt-6">Hecho con agua pura en Costa Rica • Cumple AyA • ARESEP 2026 • Hacienda v4.3 • Superadmin 8760-7243</p>
       </section>
     </div>
   );

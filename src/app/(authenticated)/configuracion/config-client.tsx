@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Building2, Smartphone, Landmark, Droplets, Save, CheckCircle, AlertCircle, Shield, Image as ImageIcon, Trash2, Phone, Mail, MapPin } from "lucide-react";
+import { Building2, Smartphone, Landmark, Droplets, Save, CheckCircle, AlertCircle, Shield, Image as ImageIcon, Trash2, Phone, Mail, MapPin, Loader2 } from "lucide-react";
 
 export default function ConfigClient({ initial, role, tenantInfo }: { initial: any; role: string; tenantInfo: any }) {
   const [form, setForm] = useState(initial);
@@ -43,11 +43,21 @@ export default function ConfigClient({ initial, role, tenantInfo }: { initial: a
     setLogoPreview(null); setMsg({ type: "ok", text: "Logo eliminado" });
   };
 
-  const Field = (p: any) => (
-    <div>
-      <label className="block text-xs font-medium text-gray-400 mb-1.5">{p.label}</label>
-      <input value={p.value} onChange={e => setForm({ ...form, [p.k]: e.target.value })} placeholder={p.ph} disabled={!canEdit} className="input-modern disabled:opacity-60" />
-    </div>
+  const Field = (p: any) => {
+    const id = `cfg-${p.k}`;
+    return (
+      <div>
+        <label htmlFor={id} className="block text-xs font-medium text-gray-400 mb-1.5">{p.label}</label>
+        <input id={id} value={p.value} onChange={e => setForm({ ...form, [p.k]: e.target.value })} placeholder={p.ph} disabled={!canEdit} className="input-modern disabled:opacity-60" />
+      </div>
+    );
+  };
+
+  const SaveBtn = ({ label, onClick, className = "" }: { label: string; onClick: () => void; className?: string }) => (
+    <button onClick={onClick} disabled={!canEdit || saving} aria-busy={saving} className={`btn-primary inline-flex items-center gap-2 ${className}`}>
+      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+      {saving ? "Guardando…" : label}
+    </button>
   );
 
   return (
@@ -73,14 +83,14 @@ export default function ConfigClient({ initial, role, tenantInfo }: { initial: a
           <div className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <Field label="Nombre ASADA" k="tenantName" value={form.tenantName} ph="ASADA San Rafael" />
-              <div><label className="block text-xs font-medium text-gray-400 mb-1.5">Cédula jurídica</label><input value={form.cedulaJuridica} onChange={e => setForm({ ...form, cedulaJuridica: e.target.value })} placeholder="3002087654" disabled={!canEdit} className="input-modern" /></div>
+              <div><label htmlFor="cfg-cedulaJuridica" className="block text-xs font-medium text-gray-400 mb-1.5">Cédula jurídica</label><input id="cfg-cedulaJuridica" value={form.cedulaJuridica} onChange={e => setForm({ ...form, cedulaJuridica: e.target.value })} placeholder="3002087654" disabled={!canEdit} className="input-modern" /></div>
             </div>
             <div className="grid md:grid-cols-3 gap-4">
-              <div><label className="block text-xs font-medium text-gray-400 mb-1.5 flex items-center gap-1"><Phone className="w-3 h-3" />Teléfono ASADA</label><input value={info.telefono} onChange={e => setInfo({ ...info, telefono: e.target.value })} placeholder="8888-0000" disabled={!canEdit} className="input-modern" /></div>
-              <div><label className="block text-xs font-medium text-gray-400 mb-1.5 flex items-center gap-1"><Mail className="w-3 h-3" />Email</label><input value={info.email} onChange={e => setInfo({ ...info, email: e.target.value })} placeholder="asada@ejemplo.cr" disabled={!canEdit} className="input-modern" /></div>
-              <div><label className="block text-xs font-medium text-gray-400 mb-1.5 flex items-center gap-1"><MapPin className="w-3 h-3" />Dirección</label><input value={info.direccion} onChange={e => setInfo({ ...info, direccion: e.target.value })} placeholder="San Rafael, Alajuela" disabled={!canEdit} className="input-modern" /></div>
+              <div><label htmlFor="cfg-telefono" className="block text-xs font-medium text-gray-400 mb-1.5 flex items-center gap-1"><Phone className="w-3 h-3" />Teléfono ASADA</label><input id="cfg-telefono" value={info.telefono} onChange={e => setInfo({ ...info, telefono: e.target.value })} placeholder="8888-0000" disabled={!canEdit} className="input-modern" /></div>
+              <div><label htmlFor="cfg-email" className="block text-xs font-medium text-gray-400 mb-1.5 flex items-center gap-1"><Mail className="w-3 h-3" />Email</label><input id="cfg-email" value={info.email} onChange={e => setInfo({ ...info, email: e.target.value })} placeholder="asada@ejemplo.cr" disabled={!canEdit} className="input-modern" /></div>
+              <div><label htmlFor="cfg-direccion" className="block text-xs font-medium text-gray-400 mb-1.5 flex items-center gap-1"><MapPin className="w-3 h-3" />Dirección</label><input id="cfg-direccion" value={info.direccion} onChange={e => setInfo({ ...info, direccion: e.target.value })} placeholder="San Rafael, Alajuela" disabled={!canEdit} className="input-modern" /></div>
             </div>
-            <button onClick={() => { save("Datos ASADA"); saveInfo(); }} disabled={!canEdit || saving} className="btn-primary inline-flex items-center gap-2"><Save className="w-4 h-4" />Guardar identidad</button>
+            <SaveBtn label="Guardar identidad" onClick={() => { save("Datos ASADA"); saveInfo(); }} />
             {form.sinpeNumero && <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-sm"><span className="text-emerald-300 font-bold">SINPE activo: {form.sinpeNumero} • {form.sinpeNombre ?? form.tenantName}</span><span className="text-xs text-muted ml-2">— individual por ASADA, visible en portal abonado</span></div>}
           </div>
         </div>
@@ -92,8 +102,8 @@ export default function ConfigClient({ initial, role, tenantInfo }: { initial: a
         <div className="grid md:grid-cols-3 gap-4">
           <Field label="SINPE principal (8 dígitos)" k="sinpeNumero" value={form.sinpeNumero} ph="8888 0001" />
           <Field label="Nombre titular" k="sinpeNombre" value={form.sinpeNombre} ph="ASADA San Rafael" />
-          <div><label className="block text-xs font-medium text-gray-400 mb-1.5">Banco</label>
-            <select value={form.sinpeBanco} onChange={e => setForm({ ...form, sinpeBanco: e.target.value })} disabled={!canEdit} className="select-modern disabled:opacity-60">
+          <div><label htmlFor="cfg-sinpeBanco" className="block text-xs font-medium text-gray-400 mb-1.5">Banco</label>
+            <select id="cfg-sinpeBanco" value={form.sinpeBanco} onChange={e => setForm({ ...form, sinpeBanco: e.target.value })} disabled={!canEdit} className="select-modern disabled:opacity-60">
               <option value="BNCR">BNCR</option><option value="BCR">BCR</option><option value="BAC">BAC</option><option value="Davivienda">Davivienda</option><option value="Scotiabank">Scotiabank</option><option value="Otro">Otro</option>
             </select>
           </div>
@@ -101,18 +111,18 @@ export default function ConfigClient({ initial, role, tenantInfo }: { initial: a
         <div className="grid md:grid-cols-3 gap-4 mt-4">
           <Field label="SINPE secundario (opcional)" k="sinpeNumero2" value={form.sinpeNumero2} ph="—" />
           <Field label="Nombre titular 2" k="sinpeNombre2" value={form.sinpeNombre2} ph="—" />
-          <div className="flex items-end"><button onClick={() => save("SINPE")} disabled={!canEdit || saving} className="btn-primary w-full inline-flex items-center justify-center gap-2"><Save className="w-4 h-4" />Guardar SINPE</button></div>
+          <div className="flex items-end"><SaveBtn label="Guardar SINPE" onClick={() => save("SINPE")} className="w-full justify-center" /></div>
         </div>
       </div>
 
       <div className="glass rounded-2xl p-6">
         <h3 className="font-semibold text-white flex items-center gap-2 mb-4"><Droplets className="w-5 h-5 text-blue-400" /> Tarifas ARESEP</h3>
         <div className="grid md:grid-cols-3 gap-4">
-          <div><label className="block text-xs font-medium text-gray-400 mb-1.5">TPRH domiciliar (₡)</label><input type="number" value={form.tprhDomiciliar} onChange={e => setForm({ ...form, tprhDomiciliar: Number(e.target.value) })} disabled={!canEdit} className="input-modern" /></div>
-          <div><label className="block text-xs font-medium text-gray-400 mb-1.5">TPRH comercial (₡)</label><input type="number" value={form.tprhComercial} onChange={e => setForm({ ...form, tprhComercial: Number(e.target.value) })} disabled={!canEdit} className="input-modern" /></div>
-          <div><label className="block text-xs font-medium text-gray-400 mb-1.5">Hidrantes mensual (₡)</label><input type="number" value={form.hidrantesMensual} onChange={e => setForm({ ...form, hidrantesMensual: Number(e.target.value) })} disabled={!canEdit} className="input-modern" /></div>
+          <div><label htmlFor="cfg-tprhDomiciliar" className="block text-xs font-medium text-gray-400 mb-1.5">TPRH domiciliar (₡)</label><input id="cfg-tprhDomiciliar" type="number" value={form.tprhDomiciliar} onChange={e => setForm({ ...form, tprhDomiciliar: Number(e.target.value) })} disabled={!canEdit} className="input-modern" /></div>
+          <div><label htmlFor="cfg-tprhComercial" className="block text-xs font-medium text-gray-400 mb-1.5">TPRH comercial (₡)</label><input id="cfg-tprhComercial" type="number" value={form.tprhComercial} onChange={e => setForm({ ...form, tprhComercial: Number(e.target.value) })} disabled={!canEdit} className="input-modern" /></div>
+          <div><label htmlFor="cfg-hidrantesMensual" className="block text-xs font-medium text-gray-400 mb-1.5">Hidrantes mensual (₡)</label><input id="cfg-hidrantesMensual" type="number" value={form.hidrantesMensual} onChange={e => setForm({ ...form, hidrantesMensual: Number(e.target.value) })} disabled={!canEdit} className="input-modern" /></div>
         </div>
-        <button onClick={() => save("Tarifas")} disabled={!canEdit || saving} className="btn-primary mt-4 inline-flex items-center gap-2"><Save className="w-4 h-4" />Guardar tarifas</button>
+        <SaveBtn label="Guardar tarifas" onClick={() => save("Tarifas")} className="mt-4" />
       </div>
 
       <div className="glass rounded-2xl p-6 border border-cyan-500/15">
@@ -124,9 +134,9 @@ export default function ConfigClient({ initial, role, tenantInfo }: { initial: a
         </div>
         <div className="grid md:grid-cols-2 gap-4 mt-4">
           <Field label="Phone ID (Meta Cloud API)" k="whatsappPhoneId" value={form.whatsappPhoneId} ph="123456789012345" />
-          <div><label className="block text-xs font-medium text-gray-400 mb-1.5">Token (se encripta)</label><input type="password" value={form.whatsappToken ?? ""} onChange={e => setForm({ ...form, whatsappToken: e.target.value })} placeholder="EAAx..." disabled={!canEdit} className="input-modern disabled:opacity-60" /></div>
+          <div><label htmlFor="cfg-whatsappToken" className="block text-xs font-medium text-gray-400 mb-1.5">Token (se encripta)</label><input id="cfg-whatsappToken" type="password" value={form.whatsappToken ?? ""} onChange={e => setForm({ ...form, whatsappToken: e.target.value })} placeholder="EAAx..." disabled={!canEdit} className="input-modern disabled:opacity-60" /></div>
         </div>
-        <button onClick={() => save("WhatsApp")} disabled={!canEdit || saving} className="btn-primary mt-4 inline-flex items-center gap-2"><Save className="w-4 h-4" />Guardar WhatsApp</button>
+        <SaveBtn label="Guardar WhatsApp" onClick={() => save("WhatsApp")} className="mt-4" />
       </div>
 
       <div className="glass rounded-2xl p-6">

@@ -143,7 +143,7 @@ export default function BillingPage() {
               <div className="flex justify-between"><span className="text-gray-400">Gravado</span><span className="text-gray-300">{formatCurrency(result.bill.subtotalGravado)}</span></div>
               <div className="flex justify-between"><span className="text-gray-400">IVA 13%</span><span className="text-gray-300">{formatCurrency(result.bill.iva)}</span></div>
               <div className="flex justify-between pt-3 border-t border-white/5"><span className="text-base font-semibold text-white">Total a pagar</span><span className="text-lg font-bold text-green-400">{formatCurrency(result.bill.total)}</span></div>
-              <p className="text-[11px] text-muted flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5"/> Tiquete electrónico 04 • clave 50 dígitos + XAdES</p>
+              <p className="text-xs text-muted flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5"/> Tiquete electrónico 04 • clave 50 dígitos + XAdES</p>
             </div>
 
             <button onClick={handleGenerate} disabled={generating} className="btn-primary w-full flex items-center justify-center gap-2 mt-4">

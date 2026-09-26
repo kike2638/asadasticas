@@ -1,5 +1,4 @@
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
+import { AppShell } from "@/components/layout/AppShell";
 import { getServerUser } from "@/lib/auth/helper";
 
 const roleLabels: Record<string, string> = {
@@ -26,18 +25,12 @@ export default async function AuthenticatedLayout({
     .toUpperCase();
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Topbar
-          userName={session?.user?.email}
-          userRole={roleLabels[session?.user?.role ?? ""]}
-          initials={initials}
-        />
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-[1440px] p-6 lg:p-8">{children}</div>
-        </main>
-      </div>
-    </div>
+    <AppShell
+      userName={session?.user?.email}
+      userRole={roleLabels[session?.user?.role ?? ""]}
+      initials={initials}
+    >
+      {children}
+    </AppShell>
   );
 }

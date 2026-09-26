@@ -16,7 +16,7 @@ export default function SubscribersClient({ subscribers }: { subscribers: any[] 
       <div className="glass rounded-2xl p-4">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar por nombre, NIS o medidor..." className="input-modern pl-12" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar por nombre, NIS o medidor..." aria-label="Buscar abonados por nombre, NIS o medidor" className="input-modern pl-12" type="search" />
         </div>
         {q && <p className="text-xs text-muted mt-2">{filtered.length} resultados para &quot;{q}&quot;</p>}
       </div>

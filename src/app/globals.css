@@ -13,7 +13,7 @@
   --border-bright: rgba(34, 211, 238, 0.4);
   --text: #e8f1ff;
   --text-secondary: #9aa9c9;
-  --text-muted: #5c6d96;
+  --text-muted: #7686ad;
   --brand: #22d3ee;
   --brand-hover: #67e8f9;
   --brand-2: #38bdf8;
@@ -333,7 +333,8 @@ body {
   border: 1px solid rgba(167, 139, 250, 0.18);
 }
 .badge-orange,
-.badge-amber {
+.badge-amber,
+.badge-yellow {
   background: rgba(251, 191, 36, 0.1);
   color: var(--amber);
   border: 1px solid rgba(251, 191, 36, 0.18);
