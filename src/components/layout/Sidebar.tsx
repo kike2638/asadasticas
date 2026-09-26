@@ -83,11 +83,12 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="relative w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-[0_6px_24px_rgba(34,211,238,0.35)] shrink-0 overflow-hidden">
-            {tenantInfo?.logoUrl ? <img src={tenantInfo.logoUrl} alt="Logo" className="w-full h-full object-contain p-1" /> : <Droplets className="w-5 h-5 text-[#042635]" />}
+            {/* eslint-disable-next-line @next/next/no-img-element -- logoUrl puede ser data: URL, next/image no lo optimiza */}
+            {tenantInfo?.logoUrl ? <img src={tenantInfo.logoUrl} alt="Logo" className="w-full h-full object-contain p-1" /> : <Droplets className="w-5 h-5 text-[var(--on-brand)]" />}
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-[13px] font-bold tracking-tight leading-none truncate">{tenantInfo?.name ?? "ASADAS"}<span className="ml-1.5 text-[10px] font-semibold text-[var(--brand)] align-super">v2</span></p>
+              <p className="text-[13px] font-bold tracking-tight leading-none truncate">{tenantInfo?.name ?? "ASADAS"}<span className="ml-1.5 text-xs font-semibold text-[var(--brand)] align-super">v2</span></p>
               <p className="text-xs text-muted mt-1 leading-none truncate">{tenantInfo?.sinpe ? `SINPE ${tenantInfo.sinpe}` : "Gestión de Agua"}</p>
             </div>
           )}
@@ -103,7 +104,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
         ) : (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="absolute -right-3 top-[26px] p-1 rounded-full bg-[#0d1428] border border-[rgba(96,165,250,0.2)] text-muted hover:text-white transition-colors hidden lg:flex"
+            className="absolute -right-3 top-[26px] p-1 rounded-full bg-[var(--surface-solid)] border border-[rgba(96,165,250,0.2)] text-muted hover:text-white transition-colors hidden lg:flex"
             aria-label="Expandir menú"
           >
             <ChevronRight className="w-3.5 h-3.5" />
@@ -207,7 +208,7 @@ function NavItem({
         aria-label={label}
         className={`relative w-11 h-11 flex items-center justify-center rounded-xl transition-all ${
           active
-            ? "text-[#042635] bg-[var(--brand-grad)] shadow-[0_6px_16px_rgba(34,211,238,0.3)]"
+            ? "text-[var(--on-brand)] bg-[var(--brand-grad)] shadow-[0_6px_16px_rgba(34,211,238,0.3)]"
             : "text-muted hover:text-white hover:bg-white/5"
         }`}
       >

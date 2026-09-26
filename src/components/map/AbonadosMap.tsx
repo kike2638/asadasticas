@@ -15,7 +15,7 @@ interface Abonado {
 }
 
 const statusColor: Record<string, string> = {
-  ACTIVO: "#22d3ee", MOROSO: "#f59e0b", CORTE: "#ef4444", SUSPENDIDO: "#a78bfa", RETIRADO: "#64748b",
+  ACTIVO: "var(--brand)", MOROSO: "#f59e0b", CORTE: "#ef4444", SUSPENDIDO: "var(--violet)", RETIRADO: "#64748b",
 };
 const categoryLabel: Record<string, string> = {
   DOMICILIAR: "Residencial", COMERCIAL: "Comercial", INDUSTRIAL: "Industrial", PUBLICO: "Público",

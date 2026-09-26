@@ -72,6 +72,7 @@ export default function ConfigClient({ initial, role, tenantInfo }: { initial: a
         <div className="grid md:grid-cols-[200px_1fr] gap-6">
           <div className="space-y-3">
             <div className="w-full h-40 rounded-2xl bg-white/[0.04] border-2 border-dashed border-white/10 flex items-center justify-center overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element -- logoPreview es data:/blob: del FileReader, next/image no lo optimiza */}
               {logoPreview ? <img src={logoPreview} alt="Logo ASADA" className="w-full h-full object-contain p-2" /> : <span className="text-xs text-muted text-center px-4">Sin logo<br />PNG 400x400</span>}
             </div>
             <label className="w-full py-2 rounded-xl bg-white/5 border border-white/10 text-center text-sm text-gray-300 cursor-pointer hover:bg-white/10 flex items-center justify-center gap-2">

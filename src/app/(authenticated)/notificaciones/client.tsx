@@ -7,6 +7,12 @@ export default function NotificacionesClient({ sinpe, logs }: { sinpe: string | 
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [filterTipo, setFilterTipo] = useState<string>("TODOS");
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  const notify = (type: "ok" | "err", text: string) => {
+    setMsg({ type, text });
+    setTimeout(() => setMsg(null), 5000);
+  };
 
   const loadQueue = async () => {
     setLoading(true);
@@ -24,7 +30,8 @@ export default function NotificacionesClient({ sinpe, logs }: { sinpe: string | 
     const res = await fetch("/api/notifications/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tipos, limit: 50 }) });
     const data = await res.json();
     setSending(false);
-    alert(`Enviados: ${data.enviados} • Fallidos: ${data.fallidos} • Modo: ${data.detalles?.[0]?.modo ?? "—"}`);
+    if (!res.ok) notify("err", data.error ?? "Error al enviar");
+    else notify("ok", `Enviados: ${data.enviados} • Fallidos: ${data.fallidos} • Modo: ${data.detalles?.[0]?.modo ?? "—"}`);
     loadQueue();
   };
 
@@ -51,6 +58,11 @@ export default function NotificacionesClient({ sinpe, logs }: { sinpe: string | 
           <button onClick={() => send(["RECORDATORIO_5", "VENCIMIENTO_HOY"])} disabled={sending} className="px-4 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-sm">Solo por vencer</button>
           <button onClick={() => send(["MOROSO_7", "MOROSO_15", "MOROSO_30"])} disabled={sending} className="px-4 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 text-sm">Solo morosos</button>
         </div>
+        {msg && (
+          <div role={msg.type === "err" ? "alert" : "status"} aria-live="polite" className={`mt-3 p-3 rounded-xl border text-sm flex items-center gap-2 ${msg.type === "ok" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300" : "bg-red-500/10 border-red-500/20 text-red-300"}`}>
+            {msg.type === "ok" ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertTriangle className="w-4 h-4 shrink-0" />}{msg.text}
+          </div>
+        )}
       </div>
 
       <div className="glass rounded-2xl overflow-hidden">
@@ -68,7 +80,7 @@ export default function NotificacionesClient({ sinpe, logs }: { sinpe: string | 
         </div>
         <div className="overflow-x-auto max-h-[420px]">
           <table className="table-modern text-sm">
-            <thead className="sticky top-0 bg-[#0a1020]"><tr><th>NIS</th><th>Abonado</th><th>Tel</th><th>Periodo</th><th>Vence</th><th>Tipo</th><th>Monto</th></tr></thead>
+            <thead className="sticky top-0 bg-[var(--surface-solid)]"><tr><th>NIS</th><th>Abonado</th><th>Tel</th><th>Periodo</th><th>Vence</th><th>Tipo</th><th>Monto</th></tr></thead>
             <tbody>
               {filtered.map((q: any) => (
                 <tr key={q.invoiceId} className={q.tipo.includes("MOROSO") || q.tipo === "CORTE_AVISO" ? "bg-red-500/5" : q.tipo === "VENCIMIENTO_HOY" ? "bg-amber-500/5" : ""}>

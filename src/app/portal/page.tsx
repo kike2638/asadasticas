@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Droplets, Search, Smartphone, FileText, AlertTriangle, CheckCircle, MapPin, Calendar, CreditCard } from "lucide-react";
 import { formatCRC } from "@/lib/saas/pricing";
 
@@ -29,9 +30,9 @@ export default function PortalPage() {
   const qrUrl = qrData ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrData)}` : "";
 
   return (
-    <div className="min-h-screen bg-[#050a18] text-white">
+    <div className="min-h-screen bg-[var(--base)] text-white">
       <header className="max-w-3xl mx-auto px-6 py-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center"><Droplets className="w-5 h-5 text-[#042635]" /></div>
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center"><Droplets className="w-5 h-5 text-[var(--on-brand)]" /></div>
         <div>
           <p className="font-bold tracking-tight">Portal del Abonado</p>
           <p className="text-xs text-gray-400">Consulta tu deuda y paga por SINPE Móvil</p>
@@ -70,7 +71,8 @@ export default function PortalPage() {
             <div className="glass rounded-2xl p-6 border border-cyan-500/15">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex gap-3">
-                  {data.asada.logoUrl && <img src={data.asada.logoUrl} alt="Logo" className="w-12 h-12 rounded-xl object-contain bg-white p-1" />}
+                  {/* eslint-disable-next-line @next/next/no-img-element -- logoUrl puede ser data: URL del tenant, fuera del optimizador */}
+                  {data.asada.logoUrl && <img src={data.asada.logoUrl} alt={`Logo de ${data.asada.name}`} width={48} height={48} className="w-12 h-12 rounded-xl object-contain bg-white p-1" />}
                   <div>
                     <p className="text-sm text-muted flex items-center gap-1"><MapPin className="w-4 h-4" />{data.asada.name}</p>
                     <h3 className="text-xl font-bold text-white">{data.abonado.name}</h3>
@@ -90,7 +92,7 @@ export default function PortalPage() {
               ) : (
                 <div className="grid md:grid-cols-2 gap-6 mt-6">
                   <div className="rounded-2xl bg-white p-4 flex flex-col items-center">
-                    <img src={qrUrl} alt="QR SINPE" width={220} height={220} className="rounded-xl" />
+                    <Image src={qrUrl} alt="Código QR SINPE Móvil" width={220} height={220} loading="lazy" className="rounded-xl" />
                     <p className="text-xs text-gray-900 font-bold mt-2">Escanea para pagar por SINPE Móvil</p>
                     <p className="text-xs text-gray-500 text-center">Abre tu banco → SINPE Móvil → Escanear QR o digita manual</p>
                   </div>

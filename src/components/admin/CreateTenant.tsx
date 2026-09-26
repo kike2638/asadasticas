@@ -60,7 +60,7 @@ export default function CreateTenant() {
 
       {open && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={reset}>
-          <div className="glass rounded-2xl p-6 w-full max-w-md bg-[#0b1224]" onClick={e => e.stopPropagation()}>
+          <div className="glass rounded-2xl p-6 w-full max-w-md bg-[var(--surface-solid)]" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-cyan-400" />

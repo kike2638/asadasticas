@@ -57,7 +57,7 @@ function LoginForm() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-[var(--brand-grad)] shadow-[0_12px_40px_rgba(34,211,238,0.35)] mb-6">
-            <Droplets className="w-8 h-8 text-[#042635]" />
+            <Droplets className="w-8 h-8 text-[var(--on-brand)]" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white">
             ASADAS ERP

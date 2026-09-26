@@ -119,7 +119,8 @@ export default function ReadingCapture({ tenantId, lectorId }: Props) {
           <button onClick={() => fileRef.current?.click()} aria-label="Tomar o subir foto del medidor" className="btn-primary px-4 min-h-11"><Camera className="w-5 h-5"/></button>
           <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" aria-label="Foto del medidor" onChange={handleFoto} />
         </div>
-        {foto && <img src={foto} alt="preview" className="w-full h-32 object-cover rounded-xl" />}
+        {/* eslint-disable-next-line @next/next/no-img-element -- foto de la cámara como data: URL, next/image no la optimiza */}
+        {foto && <img src={foto} alt="Foto de la lectura del medidor capturada" loading="lazy" className="w-full h-32 object-cover rounded-xl" />}
         <select value={anomalia} onChange={e => setAnomalia(e.target.value)} className="select-modern w-full">
           <option value="NONE">Sin anomalía</option>
           <option value="MEDIDOR_DANADO">Medidor dañado</option>

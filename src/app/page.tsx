@@ -4,16 +4,16 @@ import DemoForm from "@/components/landing/DemoForm";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#050a18] text-white">
+    <div className="min-h-screen bg-[var(--base)] text-white">
       <header className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center"><Droplets className="w-5 h-5 text-[#042635]" /></div>
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center"><Droplets className="w-5 h-5 text-[var(--on-brand)]" /></div>
           <span className="font-bold tracking-tight">AquaLectura CR <span className="text-cyan-400 text-xs ml-1">v2 ASADA</span></span>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/portal" className="px-4 py-2 text-sm text-emerald-300 hover:text-white font-medium">Portal abonado</Link>
           <Link href="/login" className="px-4 py-2 text-sm text-gray-300 hover:text-white">Ingresar ASADA</Link>
-          <Link href="/onboarding" className="px-5 py-2.5 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 text-[#042635] font-semibold text-sm">Registrar mi ASADA</Link>
+          <Link href="/onboarding" className="px-5 py-2.5 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 text-[var(--on-brand)] font-semibold text-sm">Registrar mi ASADA</Link>
         </div>
       </header>
 
@@ -28,9 +28,9 @@ export default function Home() {
           Lecturas offline con GPS, facturación ARESEP con tiquete electrónico 04, SINPE FIFO y WhatsApp automático. De 3 días de facturación a 20 minutos.
         </p>
         <div className="flex flex-wrap gap-3 mt-8">
-          <Link href="#demo" className="px-6 py-3 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 text-[#042635] font-bold">Solicitar demo → 8760-7243</Link>
+          <Link href="#demo" className="px-6 py-3 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 text-[var(--on-brand)] font-bold">Solicitar demo → 8760-7243</Link>
           <Link href="/portal" className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white">Portal abonado</Link>
-          <Link href="/login" className="px-6 py-3 rounded-xl bg-white text-[#050a18] font-semibold">Ingresar ASADA</Link>
+          <Link href="/login" className="px-6 py-3 rounded-xl bg-white text-[var(--base)] font-semibold">Ingresar ASADA</Link>
         </div>
         <div className="flex flex-wrap gap-6 mt-8 text-sm text-gray-400">
           <span className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" />Offline-first campo</span>
@@ -77,7 +77,7 @@ export default function Home() {
             <p className="font-semibold text-white">¿Lista para cobrar a tiempo?</p>
             <p className="text-sm text-gray-400">Empieza gratis, paga por uso. Login solo para clientes.</p>
           </div>
-          <Link href="/login" className="px-6 py-3 rounded-xl bg-white text-[#050a18] font-semibold shrink-0">Ingresar ASADA →</Link>
+          <Link href="/login" className="px-6 py-3 rounded-xl bg-white text-[var(--base)] font-semibold shrink-0">Ingresar ASADA →</Link>
         </div>
         <p className="text-center text-xs text-gray-500 mt-6">Hecho con agua pura en Costa Rica • Cumple AyA • ARESEP 2026 • Hacienda v4.3 • Superadmin 8760-7243</p>
       </section>

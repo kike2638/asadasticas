@@ -13,6 +13,7 @@ export default function BulkClient({ pendientes, rutas, periodo }: { pendientes:
   const [lecturas, setLecturas] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [err, setErr] = useState("");
 
   const filtrados = ruta === "TODAS" ? pendientes : pendientes.filter(p => p.ruta === ruta);
 
@@ -21,7 +22,8 @@ export default function BulkClient({ pendientes, rutas, periodo }: { pendientes:
       .filter(p => lecturas[p.meterId] && Number(lecturas[p.meterId]) > 0)
       .map(p => ({ meterId: p.meterId, subscriberId: p.subscriberId, currentReading: Number(lecturas[p.meterId]) }));
 
-    if (payload.length === 0) return alert("Ingrese al menos una lectura válida");
+    if (payload.length === 0) { setErr("Ingrese al menos una lectura válida antes de generar."); return; }
+    setErr("");
     if (!confirm(`¿Generar ${payload.length} tiquetes electrónicos para ${periodo}? Esta acción crea claves Hacienda.`)) return;
 
     setLoading(true);
@@ -57,7 +59,7 @@ export default function BulkClient({ pendientes, rutas, periodo }: { pendientes:
       <div className="glass rounded-2xl overflow-hidden">
         <div className="overflow-x-auto max-h-[520px]">
           <table className="table-modern">
-            <thead className="sticky top-0 bg-[#0a1020]"><tr><th>NIS</th><th>Abonado</th><th>Ruta</th><th>Medidor</th><th>Última</th><th style={{ minWidth: 140 }}>Lectura actual</th><th>Consumo</th></tr></thead>
+            <thead className="sticky top-0 bg-[var(--surface-solid)]"><tr><th>NIS</th><th>Abonado</th><th>Ruta</th><th>Medidor</th><th>Última</th><th style={{ minWidth: 140 }}>Lectura actual</th><th>Consumo</th></tr></thead>
             <tbody>
               {filtrados.map(p => {
                 const curr = lecturas[p.meterId] ? Number(lecturas[p.meterId]) : null;
@@ -82,7 +84,10 @@ export default function BulkClient({ pendientes, rutas, periodo }: { pendientes:
       </div>
 
       <div className="flex items-center justify-between gap-4">
-        <p className="text-xs text-muted">{filtrados.filter(p => lecturas[p.meterId]).length} con lectura cargada</p>
+        <div>
+          <p className="text-xs text-muted">{filtrados.filter(p => lecturas[p.meterId]).length} con lectura cargada</p>
+          {err && <p role="alert" className="text-xs text-red-400 mt-1">{err}</p>}
+        </div>
         <button onClick={handleBulk} disabled={loading} className="btn-primary inline-flex items-center gap-2">
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5" />Generar {filtrados.filter(p => lecturas[p.meterId]).length || filtrados.length} tiquetes {periodo}<FileText className="w-4 h-4" /></>}
         </button>

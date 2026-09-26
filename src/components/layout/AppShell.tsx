@@ -42,7 +42,7 @@ export function AppShell({
     <div className="flex h-screen overflow-hidden">
       <a
         href="#contenido"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-cyan-400 focus:text-[#042635] focus:font-semibold"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-cyan-400 focus:text-[var(--on-brand)] focus:font-semibold"
       >
         Saltar al contenido
       </a>

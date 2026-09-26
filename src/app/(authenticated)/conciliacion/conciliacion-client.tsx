@@ -10,6 +10,12 @@ export default function ConciliacionClient({ sinpe, sinpeNombre, role, tenantSlu
   const [executing, setExecuting] = useState(false);
   const [selected, setSelected] = useState<Record<number, { invoiceId: string; subscriberId: string }>>({});
   const [filter, setFilter] = useState<"ALL" | "AUTO" | "REVIEW">("ALL");
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  const notify = (type: "ok" | "err", text: string) => {
+    setMsg({ type, text });
+    setTimeout(() => setMsg(null), 5000);
+  };
 
   const handlePreview = async () => {
     if (!file) return;
@@ -41,25 +47,33 @@ export default function ConciliacionClient({ sinpe, sinpeNombre, role, tenantSlu
         subscriberId: sel.subscriberId,
       };
     }).filter(Boolean);
-    if (selections.length === 0) return alert("Selecciona al menos un match");
+    if (selections.length === 0) { notify("err", "Selecciona al menos un match"); return; }
     if (!confirm(`¿Conciliar ${selections.length} transacciones y crear pagos?`)) return;
     setExecuting(true);
     const res = await fetch("/api/banks/execute", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selections }) });
     const data = await res.json();
     setExecuting(false);
-    if (!res.ok) alert(data.error ?? "Error");
-    else { alert(`✓ ${data.conciliados} conciliados. ${data.errores?.length ? data.errores.length + " errores" : ""}`); location.reload(); }
+    if (!res.ok) notify("err", data.error ?? "Error al conciliar");
+    else {
+      notify("ok", `✓ ${data.conciliados} conciliados${data.errores?.length ? ` • ${data.errores.length} errores` : ""} — recargando…`);
+      setTimeout(() => location.reload(), 1400);
+    }
   };
 
   const visibleMatches = preview?.matches?.filter((m: any) => filter === "ALL" || m.suggestedAction === filter) ?? [];
 
   return (
     <div className="space-y-6">
+      {msg && (
+        <div role={msg.type === "err" ? "alert" : "status"} aria-live="polite" className={`p-3 rounded-xl border text-sm flex items-center gap-2 ${msg.type === "ok" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300" : "bg-red-500/10 border-red-500/20 text-red-300"}`}>
+          {msg.type === "ok" ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertTriangle className="w-4 h-4 shrink-0" />}{msg.text}
+        </div>
+      )}
       <div className="glass rounded-2xl p-6">
         <h3 className="font-semibold text-white flex items-center gap-2"><Building2 className="w-5 h-5 text-cyan-400" />1. Importa estado de cuenta</h3>
         <p className="text-sm text-muted mt-1">Soporta BNCR, BCR, BAC, Davivienda, Scotiabank. Acepta CSV con <code className="bg-white/10 px-1 rounded">;</code> o <code className="bg-white/10 px-1 rounded">,</code>. Solo se concilian <span className="text-emerald-300">ingresos</span> (créditos/SINPE).</p>
 
-        {!sinpe && <div className="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm">⚠️ Configura tu SINPE en <a href="/configuracion" className="underline">Configuración</a> — sin esto no se puede validar destino.</div>}
+        {!sinpe && <div className="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm flex items-center gap-2"><AlertTriangle className="w-4 h-4 shrink-0" />Configura tu SINPE en <a href="/configuracion" className="underline">Configuración</a> — sin esto no se puede validar destino.</div>}
 
         <div className="mt-4 flex flex-col md:flex-row gap-3">
           <label className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.04] border border-dashed border-white/15 cursor-pointer hover:bg-white/[0.06]">
@@ -111,7 +125,7 @@ export default function ConciliacionClient({ sinpe, sinpeNombre, role, tenantSlu
 
             <div className="overflow-x-auto max-h-[520px]">
               <table className="table-modern text-sm">
-                <thead className="sticky top-0 bg-[#0a1020]"><tr><th><input type="checkbox" aria-label="Seleccionar todos" checked={visibleMatches.length > 0 && visibleMatches.every((m: any) => selected[m.txIndex])} onChange={e => { const next: any = { ...selected }; visibleMatches.forEach((m: any) => { if (e.target.checked) { if (m.invoice) next[m.txIndex] = { invoiceId: m.invoice.id, subscriberId: m.invoice.subscriberId }; if (m.subscription) next[m.txIndex] = { subscriptionId: m.subscription.id } as any; } else delete next[m.txIndex]; }); setSelected(next); }} /></th><th>Fecha</th><th>Banco ref</th><th>Monto</th><th>Descripción</th><th>Match</th><th>Score</th></tr></thead>
+                <thead className="sticky top-0 bg-[var(--surface-solid)]"><tr><th><input type="checkbox" aria-label="Seleccionar todos" checked={visibleMatches.length > 0 && visibleMatches.every((m: any) => selected[m.txIndex])} onChange={e => { const next: any = { ...selected }; visibleMatches.forEach((m: any) => { if (e.target.checked) { if (m.invoice) next[m.txIndex] = { invoiceId: m.invoice.id, subscriberId: m.invoice.subscriberId }; if (m.subscription) next[m.txIndex] = { subscriptionId: m.subscription.id } as any; } else delete next[m.txIndex]; }); setSelected(next); }} /></th><th>Fecha</th><th>Banco ref</th><th>Monto</th><th>Descripción</th><th>Match</th><th>Score</th></tr></thead>
                 <tbody>
                   {visibleMatches.map((m: any) => (
                     <tr key={m.txIndex} className={m.suggestedAction === "AUTO_MATCH" ? "bg-emerald-500/10" : m.suggestedAction === "REVIEW" ? "bg-amber-500/5" : ""}>

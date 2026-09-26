@@ -82,10 +82,10 @@ export default async function DashboardPage() {
   });
 
   const categoryMeta: Record<string, { label: string; color: string }> = {
-    DOMICILIAR: { label: "Domiciliar", color: "#22d3ee" },
-    COMERCIAL: { label: "Comercial", color: "#60a5fa" },
-    INDUSTRIAL: { label: "Industrial", color: "#a78bfa" },
-    PUBLICO: { label: "Público", color: "#fbbf24" },
+    DOMICILIAR: { label: "Domiciliar", color: "var(--brand)" },
+    COMERCIAL: { label: "Comercial", color: "var(--blue)" },
+    INDUSTRIAL: { label: "Industrial", color: "var(--violet)" },
+    PUBLICO: { label: "Público", color: "var(--amber)" },
   };
 
   const categorySegments = categoryCounts.map((c) => ({
@@ -258,14 +258,14 @@ export default async function DashboardPage() {
             />
             <QuickAction
               href="/subscribers"
-              icon={<Users className="w-5 h-5 text-[#60a5fa]" />}
+              icon={<Users className="w-5 h-5 text-[var(--blue)]" />}
               title="Ver abonados"
               desc="Abonados activos del sistema"
               tint="bg-[rgba(96,165,250,0.1)]"
             />
             <QuickAction
               href="/payments"
-              icon={<Zap className="w-5 h-5 text-[#34d399]" />}
+              icon={<Zap className="w-5 h-5 text-[var(--emerald)]" />}
               title="Registrar pago"
               desc="Registrar pago de un abonado"
               tint="bg-[rgba(52,211,153,0.1)]"
@@ -344,7 +344,7 @@ export default async function DashboardPage() {
           { value: "15", label: "Lecturas hoy", icon: Droplets, tint: "text-[var(--brand)]" },
           { value: "98%", label: "Cobrabilidad", icon: TrendingUp, tint: "text-emerald-400" },
           { value: "0", label: "Alertas activas", icon: Clock, tint: "text-amber-400" },
-          { value: "45 m³", label: "Consumo promedio", icon: Zap, tint: "text-[#60a5fa]" },
+          { value: "45 m³", label: "Consumo promedio", icon: Zap, tint: "text-[var(--blue)]" },
         ].map((stat, i) => {
           const Icon = stat.icon;
           return (
@@ -442,7 +442,7 @@ function RevenueBarChart({ data }: { data: { label: string; value: number }[] })
           <g key={i}>
             <defs>
               <linearGradient id={`bar${i}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={active ? "#67e8f9" : "#38bdf8"} />
+                <stop offset="0%" stopColor={active ? "var(--brand-hover)" : "var(--brand-2)"} />
                 <stop offset="100%" stopColor={active ? "#06b6d4" : "#1d4ed8"} />
               </linearGradient>
             </defs>
@@ -469,7 +469,7 @@ function RevenueBarChart({ data }: { data: { label: string; value: number }[] })
               y={y - 7}
               textAnchor="middle"
               fontSize="11"
-              fill="#9aa9c9"
+              fill="var(--text-secondary)"
             >
               {d.value > 0 ? `₡${Math.round(d.value / 1000)}k` : ""}
             </text>

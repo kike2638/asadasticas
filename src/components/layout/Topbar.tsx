@@ -64,7 +64,7 @@ export function Topbar({
         </div>
 
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-[var(--brand-grad)] flex items-center justify-center text-[13px] font-bold text-[#042635] shadow-[0_4px_16px_rgba(34,211,238,0.35)]">
+          <div className="w-9 h-9 rounded-full bg-[var(--brand-grad)] flex items-center justify-center text-[13px] font-bold text-[var(--on-brand)] shadow-[0_4px_16px_rgba(34,211,238,0.35)]">
             {initials ?? "U"}
           </div>
           <div className="leading-tight hidden sm:block">

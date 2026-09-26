@@ -25,6 +25,8 @@
   --emerald: #34d399;
   --amber: #fbbf24;
   --rose: #fb7185;
+  --on-brand: #042635;
+  --table-head: #0a1020;
   --radius: 16px;
   --radius-sm: 10px;
   --shadow-card: 0 10px 30px rgba(2, 6, 23, 0.55);
@@ -140,19 +142,6 @@ body {
   pointer-events: none;
 }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
-  transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.card-hover:hover {
-  border-color: var(--border-bright);
-  transform: translateY(-2px);
-}
-
 /* Typography helpers */
 .page-title {
   font-size: 24px;
@@ -245,28 +234,6 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
-}
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: rgba(15, 24, 48, 0.6);
-  color: var(--text-secondary);
-  padding: 11px 18px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.15s ease;
-  border: 1px solid var(--border-strong);
-  cursor: pointer;
-  white-space: nowrap;
-}
-.btn-secondary:hover {
-  background: rgba(34, 211, 238, 0.06);
-  border-color: var(--brand);
-  color: var(--brand-hover);
 }
 
 /* Tables */

@@ -18,10 +18,10 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050a18] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[var(--base)] flex items-center justify-center p-6">
       <div className="w-full max-w-xl glass rounded-2xl p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center"><Droplets className="w-5 h-5 text-[#042635]" /></div>
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center"><Droplets className="w-5 h-5 text-[var(--on-brand)]" /></div>
           <div><p className="font-bold text-white">Registrar mi ASADA</p><p className="text-xs text-gray-400">Paso {step} de 3 • 2 minutos</p></div>
         </div>
 

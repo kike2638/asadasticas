@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "ASADAS ERP",
   description: "Sistema de gestión para Administradoras de Agua",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#030612",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
