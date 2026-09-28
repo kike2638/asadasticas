@@ -1,3 +1,5 @@
+// Ejecutar: npm test
+import { describe, it, expect } from "vitest";
 import { parseBankCSV } from "./parser";
 
 const bncr = `Fecha;Descripcion;Referencia;Debito;Credito;Saldo
@@ -9,8 +11,20 @@ const bac = `Fecha,Descripcion,Monto,Saldo
 2026-03-15,Transferencia SINPE 87654321,12850,500000
 2026-03-16,Deposito efectivo,50000,550000`;
 
-let r = parseBankCSV(bncr);
-console.log("BNCR", r.banco, r.count, r.transactions[0].monto === 12850 ? "ok" : "FAIL " + r.transactions[0].monto);
-r = parseBankCSV(bac);
-console.log("BAC", r.banco, r.count, r.transactions[0].descripcion.includes("SINPE") ? "ok" : "FAIL");
-console.log("✅ parser.test 4/4");
+describe("parseBankCSV - BNCR (punto y coma)", () => {
+  it("detecta banco, cuenta filas y parsea montos", () => {
+    const r = parseBankCSV(bncr);
+    expect(r.banco).toBe("BNCR");
+    expect(r.count).toBe(3);
+    expect(r.transactions[0].monto).toBe(12850);
+  });
+});
+
+describe("parseBankCSV - BAC (comas, formato genérico)", () => {
+  it("detecta banco genérico y describe la transacción", () => {
+    const r = parseBankCSV(bac);
+    expect(r.banco).toBe("GENERICO");
+    expect(r.count).toBe(2);
+    expect(r.transactions[0].descripcion).toContain("SINPE");
+  });
+});
