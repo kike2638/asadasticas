@@ -47,3 +47,83 @@ describe("isModoProduccion", () => {
     expect(isModoProduccion("")).toBe(false);
   });
 });
+
+// --- Firma real: P12 de prueba generado en memoria, verificación criptográfica completa ---
+async function generarP12DePrueba(): Promise<{ p12b64: string; cert: any }> {
+  // @ts-ignore - node-forge es dependencia real
+  const forge: any = await import("node-forge");
+  const keys = forge.pki.rsa.generateKeyPair(1024); // 1024 solo para el test (más rápido)
+  const cert = forge.pki.createCertificate();
+  cert.publicKey = keys.publicKey;
+  cert.serialNumber = "01";
+  cert.validity.notBefore = new Date("2026-01-01T00:00:00Z");
+  cert.validity.notAfter = new Date("2027-01-01T00:00:00Z");
+  const attrs = [{ name: "commonName", value: "ASADA Prueba Firma" }, { name: "organizationName", value: "Test" }];
+  cert.setSubject(attrs);
+  cert.setIssuer(attrs);
+  cert.sign(keys.privateKey, forge.md.sha256.create());
+  const p12Asn1 = forge.pkcs12.toPkcs12Asn1(keys.privateKey, cert, "pin123");
+  return { p12b64: forge.util.encode64(forge.asn1.toDer(p12Asn1).getBytes()), cert };
+}
+
+describe("firmarXML - modo real (P12)", () => {
+  it("firma con RSA-SHA256 verificable y digest = sha256(C14N(doc))", async () => {
+    const { c14n } = await import("./c14n");
+    // @ts-ignore - node-forge
+    const forge: any = await import("node-forge");
+    const { p12b64, cert } = await generarP12DePrueba();
+
+    const r = await firmarXML(XML, p12b64, "pin123");
+    expect(r.success).toBe(true);
+    expect(r.modo).toBe("real");
+    expect(r.certInfo?.subject).toContain("ASADA Prueba Firma");
+
+    // 1) DigestValue = SHA-256 del documento canonicalizado
+    const dig = r.xmlFirmado.match(/<DigestValue>([^<]+)<\/DigestValue>/)?.[1]!;
+    const mdDoc = forge.md.sha256.create();
+    mdDoc.update(c14n(XML), "utf8");
+    expect(dig).toBe(forge.util.encode64(mdDoc.digest().bytes()));
+
+    // 2) SignatureValue = firma RSA sobre SignedInfo canonicalizado
+    const siStart = r.xmlFirmado.indexOf("<SignedInfo");
+    const siEnd = r.xmlFirmado.indexOf("</SignedInfo>") + "</SignedInfo>".length;
+    const signedInfoExtraido = r.xmlFirmado.slice(siStart, siEnd);
+    const mdSi = forge.md.sha256.create();
+    mdSi.update(c14n(signedInfoExtraido), "utf8");
+    const sigBytes = Buffer.from(
+      r.xmlFirmado.match(/<SignatureValue>([^<]+)<\/SignatureValue>/)?.[1]!,
+      "base64"
+    ).toString("binary");
+    expect(cert.publicKey.verify(mdSi.digest().bytes(), sigBytes)).toBe(true);
+
+    // 3) Una firma ajena NO verifica con nuestra clave
+    const mdFalso = forge.md.sha256.create();
+    mdFalso.update("otro documento", "utf8");
+    expect(cert.publicKey.verify(mdFalso.digest().bytes(), sigBytes)).toBe(false);
+  });
+
+  it("enveloped exacto: quitar <Signature> devuelve el XML original byte a byte", async () => {
+    const { p12b64 } = await generarP12DePrueba();
+    const r = await firmarXML(XML, p12b64, "pin123");
+    const ini = r.xmlFirmado.indexOf("<Signature ");
+    const fin = r.xmlFirmado.indexOf("</Signature>") + "</Signature>".length;
+    expect(ini).toBeGreaterThan(0);
+    const reconstruido = r.xmlFirmado.slice(0, ini) + r.xmlFirmado.slice(fin);
+    expect(reconstruido).toBe(XML); // sin whitespace extra => digest de Hacienda coincide
+  });
+
+  it("incluye XAdES QualifyingProperties con SigningTime", async () => {
+    const { p12b64 } = await generarP12DePrueba();
+    const r = await firmarXML(XML, p12b64, "pin123");
+    expect(r.xmlFirmado).toContain('<QualifyingProperties xmlns="http://uri.etsi.org/01903/v1.3.2#"');
+    expect(r.xmlFirmado).toMatch(/<SigningTime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z<\/SigningTime>/);
+  });
+
+  it("PIN incorrecto devuelve error claro (no firma simulada)", async () => {
+    const { p12b64 } = await generarP12DePrueba();
+    const r = await firmarXML(XML, p12b64, "pin-equivocado");
+    expect(r.success).toBe(false);
+    expect(r.error).toMatch(/P12|PIN|pkcs12/i);
+    expect(r.xmlFirmado).not.toContain("<Signature ");
+  });
+});
