@@ -35,7 +35,7 @@ export function calculateSubscription(n: number): { tier: Tier; montoCRC: number
 }
 
 export function formatCRC(n: number): string {
-  return `₡${n.toLocaleString("es-CR")}`;
+  return `\u20A1${n.toLocaleString("es-CR")}`;
 }
 
 export function formatUSD(n: number): string {

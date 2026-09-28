@@ -122,6 +122,24 @@ body {
   animation: floatSlow 6s ease-in-out infinite;
 }
 
+.animate-fade-in-1 {
+  animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+}
+
+.animate-fade-in-2 {
+  animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-in-1,
+  .animate-fade-in-2,
+  .animate-scale-in,
+  .animate-float {
+    animation: none !important;
+  }
+}
+
 /* Surfaces */
 .glass {
   position: relative;
