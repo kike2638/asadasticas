@@ -13,6 +13,8 @@ import {
   MessageCircle,
   ChevronDown,
   ArrowRight,
+  Lock,
+  Database,
 } from "lucide-react";
 import DemoForm from "@/components/landing/DemoForm";
 import { TIERS, type Tier } from "@/lib/saas/pricing";
@@ -53,6 +55,31 @@ const faqs = [
     q: "¿Mis abonados pueden ver su estado?",
     a: "Sí. Cada abonado consulta su deuda y factura desde el Portal del Abonado con su NIS, sin necesidad de llamadas ni visitas a la oficina.",
   },
+];
+
+const comparativa: { fila: string; ayA: "si" | "no" | "manual" | "extra"; excel: "si" | "no" | "manual" | "extra"; generico: "si" | "no" | "manual" | "extra" }[] = [
+  { fila: "Tiquete electrónico 04 firmado ante Hacienda", ayA: "si", excel: "manual", generico: "extra" },
+  { fila: "Lecturas en campo sin señal (GPS + foto)", ayA: "si", excel: "no", generico: "no" },
+  { fila: "Conciliación SINPE automática (FIFO)", ayA: "si", excel: "manual", generico: "manual" },
+  { fila: "Cobro y recordatorios por WhatsApp", ayA: "si", excel: "no", generico: "no" },
+  { fila: "Portal donde el abonado consulta 24/7", ayA: "si", excel: "no", generico: "si" },
+  { fila: "Reportes de Junta y morosidad al clic", ayA: "si", excel: "manual", generico: "si" },
+  { fila: "Precio según tu padrón, no por usuario", ayA: "si", excel: "si", generico: "no" },
+  { fila: "Migración de tu Excel incluida", ayA: "si", excel: "no", generico: "manual" },
+];
+
+function CeldaComp({ v }: { v: "si" | "no" | "manual" | "extra" }) {
+  if (v === "si") return <td className="text-center p-4"><CheckCircle className="w-5 h-5 text-emerald-400 inline" aria-label="Sí" /></td>;
+  if (v === "no") return <td className="text-center p-4"><XCircle className="w-5 h-5 text-red-400 inline" aria-label="No" /></td>;
+  if (v === "manual") return <td className="text-center p-4 text-xs text-amber-300 font-medium">A mano</td>;
+  return <td className="text-center p-4 text-xs text-amber-300 font-medium">Módulo extra</td>;
+}
+
+const garantias = [
+  { icon: ShieldCheck, title: "14 días gratis, sin tarjeta", desc: "Probás con tus abonados reales desde el primer día. Si no te convence, no pagás nada." },
+  { icon: FileText, title: "Migración de tu Excel incluida", desc: "Nos pasás el padrón y en un día tenés abonados, medidores y saldos cargados. Sin costo." },
+  { icon: MessageCircle, title: "Soporte por WhatsApp, no tickets", desc: "Respondemos al 8760-7243 con una persona real, en horario costarricense." },
+  { icon: Lock, title: "Tu dato, cifrado y aislado", desc: "Credenciales de Hacienda con AES-256 y contraseñas con bcrypt. Cada ASADA solo ve sus datos." },
 ];
 
 function tierRange(t: Tier) {
@@ -165,7 +192,8 @@ export default function Home() {
           <span className="flex items-center gap-2"><Receipt className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Hacienda v4.3 · Tiquete 04</span>
           <span className="flex items-center gap-2"><MessageCircle className="w-4 h-4 text-cyan-400" aria-hidden="true" /> SINPE Móvil</span>
           <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Reportes AyA</span>
-          <span className="flex items-center gap-2"><MapPin className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Datos alojados en Costa Rica</span>
+          <span className="flex items-center gap-2"><Lock className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Credenciales cifradas AES-256</span>
+          <span className="flex items-center gap-2"><Database className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Datos aislados por ASADA</span>
         </div>
       </section>
 
@@ -228,6 +256,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Comparativa */}
+      <section id="comparativa" className="max-w-6xl mx-auto px-6 pt-14 pb-4 scroll-mt-20">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-center">
+          Comparado con lo que usás <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">hoy</span>
+        </h2>
+        <p className="text-center text-gray-400 mt-3 max-w-2xl mx-auto">Sin letra chica: dónde sí rendimos y dónde la hoja de cálculo gana.</p>
+        <div className="glass rounded-2xl overflow-hidden mt-8 overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
+            <thead>
+              <tr className="border-b border-white/10 text-left">
+                <th className="p-4 text-gray-400 font-medium">Función</th>
+                <th className="p-4 text-center font-semibold text-cyan-300">AquaLectura CR</th>
+                <th className="p-4 text-center font-medium text-gray-400">Excel + WhatsApp</th>
+                <th className="p-4 text-center font-medium text-gray-400">Software genérico</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparativa.map((r, i) => (
+                <tr key={r.fila} className={`border-b border-white/5 last:border-0 ${i % 2 ? "bg-white/[0.02]" : ""}`}>
+                  <td className="p-4 text-gray-300">{r.fila}</td>
+                  <CeldaComp v={r.ayA} />
+                  <CeldaComp v={r.excel} />
+                  <CeldaComp v={r.generico} />
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-center text-xs text-muted mt-4">Software genérico = sistemas de administración o facturación no especializados en agua.</p>
+      </section>
+
       {/* Cómo funciona */}
       <section id="como-funciona" className="max-w-6xl mx-auto px-6 pt-14 pb-4 scroll-mt-20">
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Listo en 3 pasos</h2>
@@ -271,6 +330,22 @@ export default function Home() {
         <p className="text-center text-xs text-muted mt-5">
           Más de 1 000 abonados: se agrega ₡60 por abonado extra al mes. ¿No sabés tu tramo? Escribinos al 8760-7243.
         </p>
+      </section>
+
+      {/* Garantías y seguridad */}
+      <section id="garantias" className="max-w-6xl mx-auto px-6 pt-14 pb-4 scroll-mt-20">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Empezar es sin riesgo</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {garantias.map(g => (
+            <div key={g.title} className="glass p-5 rounded-2xl">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/20 flex items-center justify-center mb-3">
+                <g.icon className="w-5 h-5 text-emerald-300" aria-hidden="true" />
+              </div>
+              <h3 className="font-semibold text-white text-sm">{g.title}</h3>
+              <p className="text-sm text-gray-400 mt-1.5 leading-relaxed">{g.desc}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Demo */}
