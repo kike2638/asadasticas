@@ -255,6 +255,9 @@ export function validarEstructuraFactura(f: FacturaElectronica, tipo: "TE" | "FE
   if (!f.emisor.otrasSenas || f.emisor.otrasSenas.length < 5) errors.push("OtrasSenas emisor (min 5) requerido");
 
   if (tipo === "FE" && !f.receptor) errors.push("Receptor obligatorio en Factura Electrónica");
+  if (tipo === "FE" && f.receptor && !f.receptor.identificacion?.numero) {
+    errors.push("FE requiere Identificacion del receptor (XSD ReceptorType)");
+  }
   if (f.receptor?.nombre && f.receptor.nombre.length < 3) errors.push("Nombre receptor (min 3)");
 
   if (f.detalle.length === 0) errors.push("Debe tener al menos una línea de detalle");

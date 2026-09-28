@@ -162,6 +162,16 @@ export async function createInvoice({
     return inv;
   });
 
+  // Pipeline fiscal v4.4: generar XML + firma y guardarlo (local, rápido).
+  // El ENVÍO lo hace la cola del cron (reintentosPendientes) para tolerar fallos
+  // y no serializar llamadas a Hacienda en facturación masiva.
+  try {
+    const { emitirComprobante } = await import("@/lib/fiscal/emitter");
+    await emitirComprobante(invoice.id, { enviar: false });
+  } catch (e: any) {
+    console.warn(`[Fiscal] No se pudo emitir XML ${invoice.clave}: ${e?.message ?? e} - quedará en cola`);
+  }
+
   return invoice;
 }
 

@@ -36,3 +36,10 @@ export function generarConsecutivo20(sucursal: string, terminal: string, tipo: s
 export function validarClave(clave: string): boolean {
   return /^\d{50}$/.test(clave) && clave.startsWith("506");
 }
+
+// Fecha de emisión para API Hacienda: ISO-8601 con offset -06:00 (CR no aplica DST)
+export function fechaEmisionCR(d: Date): string {
+  const cr = new Date(d.getTime() - 6 * 3600 * 1000);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${cr.getUTCFullYear()}-${p(cr.getUTCMonth() + 1)}-${p(cr.getUTCDate())}T${p(cr.getUTCHours())}:${p(cr.getUTCMinutes())}:${p(cr.getUTCSeconds())}-06:00`;
+}

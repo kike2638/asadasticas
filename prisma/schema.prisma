@@ -141,6 +141,13 @@ model TenantConfig {
   whatsappNombre    String?  // nombre verificado: ASADA San Rafael
   whatsappPhoneId   String?  // Meta Cloud API phone_id
   whatsappToken     String?  // token encriptado
+  // Emisor fiscal Hacienda v4.4
+  codigoActividadEmisor String @default("360000") // CAESE 6 dígitos (ajustable por ASADA)
+  cabysPrincipal        String @default("5100000000000") // CAByS 13 dígitos del servicio de agua
+  emisorProvincia       String @default("1")  // 1..7
+  emisorCanton          String @default("01") // 01..n
+  emisorDistrito        String @default("01") // 01..n
+  emisorBarrio          String?
   tenant            Tenant   @relation(fields: [tenantId], references: [id])
 }
 
@@ -292,6 +299,7 @@ model Invoice {
   fechaEmision       DateTime       @default(now())
   fechaVencimiento   DateTime
   detalleCalculo     Json
+  xmlFirmado         String?        // XML Hacienda v4.4 firmado - base del envío y reintentos
   respuestaHacienda  Json?
   intentosEnvio      Int            @default(0)
   fechaUltimoEnvio   DateTime?
