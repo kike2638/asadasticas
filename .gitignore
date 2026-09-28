@@ -9,3 +9,4 @@ tasks/
 tsconfig.tsbuildinfo
 next-env.d.ts
 pgdata/
+.tmp-fiscal/

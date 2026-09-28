@@ -1,6 +1,6 @@
-// src/lib/fiscal/clave.ts - Generación clave 50 dígitos Hacienda CR
-// Formato: https://www.hacienda.go.cr/ATV/docs/ComprobantesElectronicos.pdf
-// 01-03 país(506) + 04-09 fecha(ddMMyy) + 10-21 cédula(12) + 22-41 consecutivo(20) + 42 situación(1) + 43-50 seguridad(8)
+// src/lib/fiscal/clave.ts - Generación clave 50 dígitos Hacienda CR (v4.4)
+// Formato: Anexos y Estructuras v4.4 — 01-03 país(506) + 04-09 fecha(ddMMyy) + 10-21 cédula(12) + 22-41 consecutivo(20) + 42 situación(1) + 43-50 seguridad(8)
+// XSD ClaveType: \d{50} (sin cambios v4.3 → v4.4)
 
 export interface ClaveParams {
   cedulaJuridica: string; // 12 dígitos: ej 3101000000 -> 003101000000
@@ -15,8 +15,7 @@ export function generarClave50(p: ClaveParams): string {
   const dd = String(fecha.getDate()).padStart(2, "0");
   const mm = String(fecha.getMonth() + 1).padStart(2, "0");
   const yy = String(fecha.getFullYear()).slice(-2);
-  const fechaStr = `${dd}${mm}${yy}`; // 6? Hacienda usa ddmmyy en posiciones 4-9, pero spec 4.3 usa ddmmyyyy? Usamos 6 según doc
-  // Corrección: Hacienda v4.3 usa DDMMYY (6) en clave 50, verificación: 506 + DDMMYY(6) + cedula(12) + consec(20)+sit(1)+seg(8)=50? 3+6+12+20+1+8=50
+  const fechaStr = `${dd}${mm}${yy}`; // posiciones 4-9: DDMMYY (6 dígitos), según Anexos v4.4
   const cedula = p.cedulaJuridica.replace(/\D/g, "").padStart(12, "0").slice(0, 12);
   const consec = p.consecutivo20.padStart(20, "0").slice(0, 20);
   const situacion = p.situacion ?? "1";

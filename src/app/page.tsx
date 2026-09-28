@@ -189,7 +189,7 @@ export default function Home() {
       <section aria-label="Cumplimiento normativo" className="border-y border-white/5 bg-white/[0.02]">
         <div className="max-w-6xl mx-auto px-6 py-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-gray-400">
           <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Cumple ARESEP 2026</span>
-          <span className="flex items-center gap-2"><Receipt className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Hacienda v4.3 · Tiquete 04</span>
+          <span className="flex items-center gap-2"><Receipt className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Hacienda v4.4 · Tiquete 04</span>
           <span className="flex items-center gap-2"><MessageCircle className="w-4 h-4 text-cyan-400" aria-hidden="true" /> SINPE Móvil</span>
           <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Reportes AyA</span>
           <span className="flex items-center gap-2"><Lock className="w-4 h-4 text-cyan-400" aria-hidden="true" /> Credenciales cifradas AES-256</span>
@@ -432,7 +432,7 @@ export default function Home() {
         <div className="border-t border-white/5">
           <p className="max-w-6xl mx-auto px-6 py-5 text-xs text-gray-500 flex flex-wrap items-center gap-x-4 gap-y-1">
             <span>© 2026 AquaLectura CR</span>
-            <span>Cumple ARESEP 2026 · Hacienda v4.3 · Reportes AyA</span>
+            <span>Cumple ARESEP 2026 · Hacienda v4.4 · Reportes AyA</span>
             <span className="flex items-center gap-1.5"><WifiOff className="w-3.5 h-3.5" aria-hidden="true" />Hecho para campo, con agua pura en Costa Rica</span>
           </p>
         </div>
