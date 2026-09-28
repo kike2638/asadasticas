@@ -110,6 +110,7 @@ model Tenant {
   tariffs      Tariff[]
   cycles       BillingCycle[]
   cashClosings CashClosing[]
+  withdrawals  CashWithdrawal[]
   subscriptions SaaSSubscription[]
   notifications NotificationLog[]
   config       TenantConfig?
@@ -154,6 +155,7 @@ model User {
 
   registeredPayments Payment[]
   cashClosings       CashClosing[]
+  withdrawals        CashWithdrawal[]
   readings           Reading[]
 }
 
@@ -345,6 +347,21 @@ model CashClosing {
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
   responsable     User     @relation(fields: [responsableId], references: [id])
   payments        Payment[]
+
+  @@index([tenantId, fecha])
+}
+
+model CashWithdrawal {
+  id            String   @id @default(uuid())
+  tenantId      String
+  fecha         DateTime @default(now())
+  tipo          String   // DEPOSITO_BANCO, OPERATIVO, UTILIDADES
+  monto         Decimal
+  motivo        String?
+  registradoPor String
+
+  tenant      Tenant @relation(fields: [tenantId], references: [id])
+  responsable User   @relation(fields: [registradoPor], references: [id])
 
   @@index([tenantId, fecha])
 }
