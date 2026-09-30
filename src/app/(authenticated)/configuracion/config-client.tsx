@@ -12,7 +12,10 @@ export default function ConfigClient({ initial, role, tenantInfo }: { initial: a
 
   const save = async (section: string) => {
     setSaving(true); setMsg(null);
-    const res = await fetch("/api/tenant/config", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+    // El token solo se manda si el usuario lo escribió; vacío = conservar el cifrado actual
+    const { whatsappToken, ...resto } = form;
+    const body = whatsappToken ? form : resto;
+    const res = await fetch("/api/tenant/config", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const data = await res.json();
     setSaving(false);
     if (!res.ok) setMsg({ type: "err", text: data.error ?? "Error" });

@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { getServerUser } from "@/lib/auth/helper";
 import { redirect } from "next/navigation";
 import ConfigClient from "./config-client";
+import FiscalClient from "./fiscal-client";
+import { estadoCredenciales } from "@/lib/fiscal/credenciales";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +50,19 @@ export default async function ConfigPage() {
           terminal: cfg.terminal,
         }}
         role={s.user.role ?? "ADMIN"}
+      />
+
+      <FiscalClient
+        canEdit={s.user.role === "ADMIN" || s.user.role === "PLATFORM_OWNER"}
+        initial={
+          (await estadoCredenciales(tenantId)) ?? {
+            usuario: "", passwordConfigurada: false, p12Configurado: false, pinConfigurado: false,
+            sucursal: cfg.sucursal, terminal: cfg.terminal,
+            codigoActividadEmisor: cfg.codigoActividadEmisor, cabysPrincipal: cfg.cabysPrincipal,
+            emisorProvincia: cfg.emisorProvincia, emisorCanton: cfg.emisorCanton,
+            emisorDistrito: cfg.emisorDistrito, emisorBarrio: cfg.emisorBarrio,
+          }
+        }
       />
     </div>
   );

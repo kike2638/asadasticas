@@ -228,7 +228,10 @@ export async function emitirComprobante(
   if (errores.length > 0) throw new Error(`XML v4.4 inválido: ${errores.join("; ")}`);
 
   const xml = tipo === "FE" ? generarXMLFactura(fe) : generarXMLTiquete(fe);
-  const firmado = await firmarXML(xml, config.llaveCryptBase64, config.llavePin);
+  // Los secretos se descifran aquí, solo en memoria del servidor
+  const { obtenerCredenciales } = await import("./credenciales");
+  const { p12Base64, pin } = await obtenerCredenciales(invoice.tenantId);
+  const firmado = await firmarXML(xml, p12Base64, pin);
   if (!firmado.success) throw new Error(`Firma falló: ${firmado.error ?? "error desconocido"}`);
 
   await prisma.invoice.update({

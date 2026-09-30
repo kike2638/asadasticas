@@ -39,7 +39,8 @@ export async function enviarComprobante(
 
   let token: string | null = null;
   try {
-    const pass = config.haciendaPassword; // en prod desencriptar
+    const { descifrar } = await import("@/lib/crypto");
+    const pass = config.haciendaPassword ? descifrar(config.haciendaPassword, tenantId, "haciendaPassword") : "";
     token = await getTokenHacienda(config.haciendaUser, pass);
   } catch {}
 
@@ -84,7 +85,9 @@ export async function consultarEstado(tenantId: string, clave: string): Promise<
   const config = await prisma.tenantConfig.findUnique({ where: { tenantId } });
   if (!config) return { success: false, estado: "ERROR", mensaje: "Sin config Hacienda", clave };
 
-  const token = await getTokenHacienda(config.haciendaUser, config.haciendaPassword).catch(() => null);
+  const { descifrar } = await import("@/lib/crypto");
+  const pass = config.haciendaPassword ? descifrar(config.haciendaPassword, tenantId, "haciendaPassword") : "";
+  const token = await getTokenHacienda(config.haciendaUser, pass).catch(() => null);
   // Modo desarrollo sin credenciales: no altera el estado
   if (!token) return { success: true, estado: "EN_PROCESO", mensaje: "Sin token - modo desarrollo", clave };
 

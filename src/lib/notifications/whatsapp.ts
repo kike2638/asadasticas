@@ -16,8 +16,8 @@ export async function sendWhatsApp(to: string, message: string, tenantId?: strin
       const { prisma } = await import("@/lib/prisma");
       const cfg: any = await prisma.tenantConfig.findUnique({ where: { tenantId }, select: { whatsappToken: true, whatsappPhoneId: true, whatsappNumero: true, whatsappNombre: true } });
       if (cfg?.whatsappToken && cfg?.whatsappPhoneId) {
-        // Token puede estar encriptado
-        try { const { decrypt } = await import("@/lib/crypto"); token = decrypt(cfg.whatsappToken); } catch { token = cfg.whatsappToken; }
+        const { descifrar } = await import("@/lib/crypto");
+        try { token = descifrar(cfg.whatsappToken, tenantId, "whatsappToken"); } catch { token = undefined; }
         phoneId = cfg.whatsappPhoneId;
         remitente = cfg.whatsappNumero ?? cfg.whatsappNombre;
       }

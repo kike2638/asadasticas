@@ -3,7 +3,6 @@
 // Simulado (sin P12): solo en desarrollo, estructura válida pero sin valor criptográfico.
 // La Signature se inserta SIN whitespace adicional => el transform enveloped-signature
 // de Hacienda reproduce exactamente el documento canónico que firmamos.
-import { decrypt } from "@/lib/crypto";
 import { c14n } from "./c14n";
 
 export interface SignResult {
@@ -43,14 +42,12 @@ function insertarSignature(xml: string, tag: string, signature: string): string 
   return xml.slice(0, -cierre.length) + signature + cierre;
 }
 
+/** Firma el XML. llaveBase64 y pin llegan en claro desde credenciales.ts (descifrados en el servidor). */
 export async function firmarXML(
   xmlSinFirmar: string,
   llaveBase64: string,
-  pinEncriptado: string
+  pin: string
 ): Promise<SignResult> {
-  let pin: string;
-  try { pin = decrypt(pinEncriptado); } catch { pin = pinEncriptado; }
-
   const tag = xmlSinFirmar.includes("<TiqueteElectronico") ? "TiqueteElectronico" : "FacturaElectronica";
   const b64 = (s: string | Buffer) => Buffer.from(s).toString("base64");
 
@@ -72,19 +69,12 @@ export async function firmarXML(
 
   // --- Modo real: P12 + node-forge ---
   try {
-    // @ts-ignore - dependencia opcional en tiempo de ejecución
-    const mod: any = await import("node-forge");
-    const forge: any = mod.default ?? mod; // CJS via tsx vs ESM via vitest
-    const p12Der = Buffer.from(llaveBase64, "base64").toString("binary");
-    const p12 = forge.pkcs12.pkcs12FromAsn1(forge.asn1.fromDer(p12Der), pin);
+    const { abrirP12 } = await import("./p12");
+    const { privateKey, cert, subject, notBefore, notAfter } = await abrirP12(llaveBase64, pin);
 
-    const certs = p12.getBags({ bagType: forge.pki.oids.certBag })[forge.pki.oids.certBag] ?? [];
-    const cert = certs[0]?.cert;
-    if (!cert) throw new Error("El P12 no contiene certificado");
-    const key =
-      p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag })[forge.pki.oids.pkcs8ShroudedKeyBag]?.[0]?.key ??
-      p12.getBags({ bagType: forge.pki.oids.keyBag })[forge.pki.oids.keyBag]?.[0]?.key;
-    if (!key) throw new Error("El P12 no contiene llave privada (o PIN incorrecto)");
+    // @ts-ignore
+    const mod: any = await import("node-forge");
+    const forge: any = mod.default ?? mod;
 
     // 1) Digest SHA-256 del documento canonicalizado (C14N 1.0, sin Signature)
     const docC14n = c14n(xmlSinFirmar);
@@ -96,7 +86,7 @@ export async function firmarXML(
     const signedInfo = construirSignedInfo(digestValue);
     const mdSi = forge.md.sha256.create();
     mdSi.update(c14n(signedInfo), "utf8");
-    const signatureValue = forge.util.encode64(key.sign(mdSi));
+    const signatureValue = forge.util.encode64(privateKey.sign(mdSi));
 
     // 3) Certificado + XAdES (SigningTime, digest SHA-1 del cert en SignedCertificate)
     const certDer = forge.asn1.toDer(forge.pki.certificateToAsn1(cert)).getBytes();
@@ -104,7 +94,6 @@ export async function firmarXML(
     const certDigest = forge.util.encode64(forge.md.sha1.create().update(certDer, "binary").digest().bytes());
     const sigId = `xmldsig-${Date.now()}`;
     const signingTime = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
-    const subject = cert.subject?.attributes?.map((a: any) => `${a.shortName}=${a.value}`).join(", ");
 
     const signature =
       `<Signature xmlns="${NS_DS}" Id="${sigId}">${signedInfo}` +
@@ -120,7 +109,7 @@ export async function firmarXML(
     return {
       success: true,
       modo: "real",
-      certInfo: { subject, validFrom: cert.validity?.notBefore?.toISOString?.(), validTo: cert.validity?.notAfter?.toISOString?.() },
+      certInfo: { subject, validFrom: notBefore, validTo: notAfter },
       xmlFirmado: insertarSignature(xmlSinFirmar, tag, signature),
     };
   } catch (e: any) {
